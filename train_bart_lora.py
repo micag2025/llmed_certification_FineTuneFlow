@@ -1,114 +1,87 @@
-# =====================================================
-!pip install -q datasets transformers peft wandb
 
-import os
-from datasets import load_dataset
-from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, TrainingArguments, Trainer, DataCollatorForSeq2Seq
-from peft import LoraConfig, get_peft_model
+# =====================================================
+# Evaluate fine-tuned BART LoRA model on HighlightSUM
+# with sample predictions
+# =====================================================
+
+!pip install -q datasets transformers rouge-score torch
+
 import torch
-import wandb
+from datasets import load_dataset
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from rouge_score import rouge_scorer
 
 # -------------------------
 # Config
 # -------------------------
-MODEL_NAME = "facebook/bart-large-cnn"
-OUTPUT_DIR = "./ft_outputs/bart_lora_highlightsum"
-N_SAMPLES = 2000   # first 2k samples for fine-tuning
-EPOCHS = 1         # set 1 epoch for debugging
-MICRO_BATCH_SIZE = 4
-LEARNING_RATE = 2e-4
+MODEL_DIR = "./ft_outputs/bart_lora_highlightsum"
+N_VAL = 200    # number of validation samples for quick evaluation
 MAX_INPUT_LENGTH = 1024
 MAX_TARGET_LENGTH = 128
-WANDB_PROJECT = "highlightsum_bart_lora"
-
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+NUM_SAMPLES_TO_DISPLAY = 5  # number of sample predictions to show
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print(f"🔥 Using device: {device}")
 
 # -------------------------
-# W&B login
+# Load validation data
 # -------------------------
-wandb.login()  # prompts for API key in Colab
+dataset = load_dataset("knkarthick/highlightsum")["test"].select(range(N_VAL))
+print(f"Loaded {len(dataset)} validation samples.")
 
 # -------------------------
-# Load dataset
+# Load fine-tuned model & tokenizer
 # -------------------------
-dataset = load_dataset("knkarthick/highlightsum")["train"].select(range(N_SAMPLES))
-print(f"Loaded {len(dataset)} samples for training.")
-
-# -------------------------
-# Tokenizer
-# -------------------------
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-# ☢ Ensure pad_token is set
+tokenizer = AutoTokenizer.from_pretrained(MODEL_DIR)
 tokenizer.pad_token = tokenizer.eos_token if tokenizer.pad_token is None else tokenizer.pad_token
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_DIR).to(device)
 
 # -------------------------
-# Model + LoRA
+# ROUGE scorer
 # -------------------------
-model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
-lora_config = LoraConfig(
-    r=8,
-    lora_alpha=32,
-    target_modules=["q_proj", "v_proj"],  # attention proj layers
-    lora_dropout=0.05,
-    bias="none",
-    task_type="SEQ_2_SEQ_LM"
-)
-model = get_peft_model(model, lora_config)
-model.to(device)
+scorer = rouge_scorer.RougeScorer(["rouge1", "rouge2", "rougeL"], use_stemmer=True)
+
+def compute_rouge(preds, refs):
+    agg = {"rouge1": 0, "rouge2": 0, "rougeL": 0}
+    for pred, ref in zip(preds, refs):
+        scores = scorer.score(ref, pred)
+        for k in agg:
+            agg[k] += scores[k].fmeasure
+    n = len(preds)
+    return {k: v / n * 100 for k, v in agg.items()}
 
 # -------------------------
-# Tokenization function
+# Generate summaries
 # -------------------------
-def tokenize_fn(example):
-    inputs = tokenizer(example["dialogue"], truncation=True, max_length=MAX_INPUT_LENGTH)
-    labels = tokenizer(example["summary"], truncation=True, max_length=MAX_TARGET_LENGTH).input_ids
-    inputs["labels"] = labels
-    return inputs
+preds = []
+refs = dataset["summary"]
 
-tokenized_dataset = dataset.map(tokenize_fn, remove_columns=dataset.column_names)
-
-# -------------------------
-# Training Arguments
-# -------------------------
-training_args = TrainingArguments(
-    output_dir=OUTPUT_DIR,
-    per_device_train_batch_size=MICRO_BATCH_SIZE,
-    num_train_epochs=EPOCHS,
-    learning_rate=LEARNING_RATE,
-    fp16=True,
-    logging_steps=50,
-    save_strategy="no",
-    gradient_accumulation_steps=1,
-    report_to="wandb",   # enables W&B logging
-    run_name="bart_lora_highlightsum"
-)
+for text in dataset["dialogue"]:
+    inputs = tokenizer(
+        text,
+        truncation=True,
+        padding="longest",
+        max_length=MAX_INPUT_LENGTH,
+        return_tensors="pt"
+    ).to(device)
+    output_ids = model.generate(**inputs, max_new_tokens=MAX_TARGET_LENGTH)
+    pred = tokenizer.decode(output_ids[0], skip_special_tokens=True)
+    preds.append(pred)
 
 # -------------------------
-# Data Collator
+# Compute ROUGE
 # -------------------------
-data_collator = DataCollatorForSeq2Seq(tokenizer=tokenizer, model=model)
+scores = compute_rouge(preds, refs)
+print("\n📊 ROUGE scores on validation set:")
+for k, v in scores.items():
+    print(f"{k}: {v:.2f}")
 
 # -------------------------
-# Trainer
+# Display some sample predictions
 # -------------------------
-trainer = Trainer(
-    model=model,
-    args=training_args,
-    train_dataset=tokenized_dataset,
-    data_collator=data_collator,
-)
-
-# -------------------------
-# Run training
-# -------------------------
-trainer.train()
-
-# -------------------------
-# Save model & tokenizer
-# -------------------------
-model.save_pretrained(OUTPUT_DIR)
-tokenizer.save_pretrained(OUTPUT_DIR)
-
-print(f"\nℹ️ Fine-tuned model saved to {OUTPUT_DIR}")
+print(f"\n📝 Sample predictions (showing {NUM_SAMPLES_TO_DISPLAY} examples):\n")
+for i in range(NUM_SAMPLES_TO_DISPLAY):
+    print(f"--- Example {i+1} ---")
+    print("Dialogue:\n", dataset[i]["dialogue"])
+    print("\nReference Summary:\n", dataset[i]["summary"])
+    print("\nPredicted Summary:\n", preds[i])
+    print("------------------------------\n")
