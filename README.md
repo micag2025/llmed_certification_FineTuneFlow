@@ -180,8 +180,8 @@ wandb login
 ### Installation
 
 ```bash
-git clone https://github.com/micag2025/tttry.git  TO BE CHANGED
-cd tttry
+git clone https://github.com/micag2025/llmed_certification_FineTuneFlow.git
+cd llmed_certification_FineTuneFlow
 pip install -r requirements.txt
 ```
 ---
