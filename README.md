@@ -390,22 +390,49 @@ Including:
 
 ### Benchmark Results
 
-
-
-
 | Model        | ROUGE-1 | ROUGE-2 | ROUGE-L | Time (s) | Throughput | Efficiency | Composite Score |
-|--------------|---------|---------|---------|----------|------------|------------|-----------------|
-| BART-large   | 30.73   | 9.64    | 23.28   | 50.65    | 0.99       | 0.46       | 1.00            |
-| LLaMA-1B     | 17.98   | 6.52    | 13.02   | 55.13    | 0.91       | 0.24       | 0.40            |
-| Qwen2.5-3B   | 20.22   | 7.51    | 14.98   | 116.98   | 0.43       | 0.13       | 0.31            |
-| Phi-3-Mini   | 20.23   | 7.69    | 15.15   | 123.98   | 0.40       | 0.12       | 0.31            |
-| Mistral-7B   | 18.93   | 6.97    | 14.50   | 125.76   | 0.40       | 0.12       | 0.28            |
-| T5-large     | 10.87   | 1.48    | 9.30    | 161.43   | 0.31       | 0.06       | 0.00            |
+|-------------|---------|---------|---------|----------|-------------|-------------|------------------|
+| **BART-large**   | 28.1073 | 9.2290 | 21.0380 | 214.2999 | 0.9333 | 0.09817 | **1.0000** |
+| **LLaMA-1B**     | 22.2260 | 9.5524 | 16.0496 | 479.1411 | 0.4174 | 0.03350 | 0.4514 |
+| **Phi-3-Mini**   | 24.1553 | 10.4631 | 17.6686 | 1280.1139 | 0.1562 | 0.01380 | 0.4273 |
+| **LLaMA-3B**     | 22.2730 | 9.8715 | 16.0050 | 968.1696 | 0.2066 | 0.01653 | 0.3586 |
+| **T5-large**     | 10.7564 | 1.8843 | 9.4922 | 731.9838 | 0.2732 | 0.01297 | 0.0226 |
+
 
 > _Note_ ROUGE-L accuracy, Time= Execution time per sample,  Tokens-per-second throughput, Throughput = samples/sec = speed=total time,
 An overall efficiency score (accuracy vs speed) Efficiency score =ROUGE/time,  Composite score (final ranking)    
 
 The Ranking Table provides a full benchmarking and model-selection pipeline. Thus, this identifies (recommends) automatically the best model to fine-tune based on balanced performance rather than size alone. To sum up, the highest composite_score wins.  
+
+Summary of results  
+- **BART-large**  
+  - Highest composite score (1.0).  
+  - ROUGE scores are decent (rougeL ≈ 21), and it is relatively fast (throughput ≈ 0.93 samples/sec) compared to other models.  
+  - Overall, the best trade-off between quality and efficiency on this subset.  
+
+- **LLaMA-1B**  
+  - Moderate ROUGE scores (rougeL ≈ 16) but slower (time ≈ 479s, throughput ≈ 0.42).  
+  - Composite score is about 0.45, showing that speed heavily penalized the ranking despite reasonable ROUGE performance.  
+
+  **Phi-3-Mini***  
+  - Slightly better ROUGE than LLaMA-1B (rougeL ≈ 17.7) but very slow (time ≈ 1280s).  
+  - Low efficiency leads to a composite score of 0.43.
+
+- **LLaMA-3B**  
+  - ROUGE similar to LLaMA-1B (rougeL ≈ 16), but slower (time ≈ 968s).  
+  - Efficiency and throughput are low → composite score drops to 0.36.  
+
+- **T5-large**  
+  - Lowest ROUGE (rougeL ≈ 9.5) and slow (time ≈ 732s).    
+  - Composite score is near 0.02, making it the least favorable for this benchmark subset.
+
+_Key takeaways_
+  - Composite score reflects both quality and efficiency.  
+  - Models like BART-large, which may have slightly lower ROUGE than Phi-3-Mini on individual metrics, can dominate because they are much faster. 
+  - Large causal models (LLaMA-3B, Phi-3-Mini) may give competitive ROUGE but are penalized heavily due to high inference time, resulting in lower composite scores.  
+
+This shows the importance of balancing accuracy with inference speed when benchmarking large models for dialogue summarization.
+
 
 ## Auto-fine-tuning Recommendation & Plan Results   
 
