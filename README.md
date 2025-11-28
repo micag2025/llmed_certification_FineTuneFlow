@@ -198,7 +198,43 @@ Run the benchmarking notebook (`notebook_C`) to compare multiple candidate model
 - Tokens-per-second throughput    
 - An overall efficiency score (accuracy vs speed)
 
-IMP enclose section peerform basic preprocessing (e.g. tokenization, splitting into train/validation)
+Basic preprocessing has been performed, including tokenization of dialogues with appropriate padding and truncation, batch preparation for seq2seq models, and selection of a subset from the HighlightSUM train split for benchmarking  
+Basic preprocessing performed:
+- **Tokenization**:    
+  - All text inputs (`dialogue`) are tokenized using the model-specific tokenizer.  
+  - For causal models, if `pad_token` was missing, it was set to `eos_token` to allow batching/padding.  
+  - Seq2seq and causal models both use truncation and padding (`max_length=1024`) to ensure consistent tensor shapes.  
+- **Dataset splitting**:  
+  - Selected a subset of samples (`N_SAMPLES`) from the HighlightSUM train split for benchmarking.  
+  = If desired, you could extend this to full train/validation/test splits for proper evaluation.  
+- **Batching (seq2seq models)**:
+ - Inputs are batched to reduce memory usage on GPU, which is part of preprocessing before model inference.
+
+`Notebook C` allows:  
+- Benchmarks large models safely on Colab.    
+- Performs basic preprocessing (tokenization, padding, truncation, batching).  
+- Handles tokenizer safety (pad_token set if missing).  
+- Includes train/validation/test split handling.  
+- Clearly highlights all places where tokenizer safety or padding/truncation is applied.
+
+_Key Preprocessing & Tokenizer Safety Highlights_
+1 **Tokenizer safety**:
+```bash
+if tokenizer.pad_token is None:
+    tokenizer.pad_token = tokenizer.eos_token
+```
+- Applied for **all models**, including causal LMs.
+2 **Batching & padding**:  
+- Seq2seq models use `padding="longest"` and `max_length=1024`.  
+- Causal models use `padding="max_length"` and max_length=1024.    
+3 **Truncation**:  
+- Ensures sequences don’t exceed model’s max input length.  
+4 **Dataset split**:  
+- Train, validation, and test subsets selected (N_SAMPLES for test subset).  
+
+
+
+
 
  **Auto-fine-tuning Recommendation & Plan** START FROM HERE TO CHANGE 
 
