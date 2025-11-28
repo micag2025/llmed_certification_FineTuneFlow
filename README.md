@@ -1,4 +1,4 @@
-# LLM Engineering and Deployment (LLMED) Certification:Capstone Project: LLM Fine-Tuning & Optimization for Dialogue Summarization (Highlightsum)
+# LLM Engineering and Deployment (LLMED) Certification:Capstone Project: LLM Fine-Tuning & Optimization for Dialogue Summarization (HighlightSum)
 
 This repository is part of capstone project for the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) and it is linked to the publication:**LLMED Certification:Capstone Project:LLM Fine-Tuning & Optimization for Dialogue Summarization (SAMSum)** available on [Ready Tensor](https://www.readytensor.ai). This project builds a complete evaluation, selection, and fine-tuning pipeline for small-to-medium open-source language models. The objective is to identify the most efficient model for dialogue summarization, then fine-tune it using QLoRA and optimize it for real-world deployment. This was achieved using a subset of the Highlightsum dataset. This capstone project focuses on fine-tuning and benchmarking large language models for efficient, high-quality conversational summarization.
 
@@ -6,7 +6,7 @@ This repository is part of capstone project for the **LLM Engineering and Deploy
 
 ## Project Overview (Description)
 
-This project develops a scalable, efficient workflow for selecting, fine-tuning, and evaluating open-source LLMs (e.g. BART, T5, LLaMA, Mistral, Qwen) for the task of dialogue summarization, using a subset of the benchmark [Highlightsum dataset](https://huggingface.co/datasets/knkarthick/highlightsum) as a test dataset. The codebase automates model selection via benchmarking, applies QLoRA for parameter-efficient fine-tuning, and outputs deployable artifacts.
+This project develops a scalable, efficient workflow for selecting, fine-tuning, and evaluating open-source LLMs (e.g. BART, T5, LLaMA, Mistral, Qwen) for the task of dialogue summarization, using a subset of the benchmark [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum) as a test dataset. The codebase automates model selection via benchmarking, applies QLoRA for parameter-efficient fine-tuning, and outputs deployable artifacts.
 
 ---
 
@@ -217,7 +217,7 @@ Basic preprocessing performed:
 - Includes train/validation/test split handling.  
 - Clearly highlights all places where tokenizer safety or padding/truncation is applied.
 
-_Key Preprocessing & Tokenizer Safety Highlights_
+_Key Preprocessing & Tokenizer Safety Highlights_  
 1 **Tokenizer safety**:
 ```bash
 if tokenizer.pad_token is None:
