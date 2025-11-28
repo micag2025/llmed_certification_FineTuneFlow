@@ -459,6 +459,23 @@ and **LLaMA-1B**:
   }
 ```
 
+`recommendation.json` confirms that the auto-selection system from Notebook D ranked BART-large highest and proposes hyperparameters for fine-tuning. Interpretation of recommendation.json
+
+| Model          | Size | Recommended PEFT Method                    | Suggested Hypers                   | Meaning                                                   |
+| -------------- | ---- | ------------------------------------------ | ---------------------------------- | --------------------------------------------------------- |
+| **BART-large** | 0.4B | **LoRA (PEFT) — encoder–decoder friendly** | epochs: 3, batch size: 8, LR: 2e-4 | **Best match for abstractive summarisation + efficiency** |
+| **LLaMA-1B**   | 1B   | LoRA **or full fine-tune**                 | epochs: 3, batch size: 8, LR: 2e-4 | Strong, but slower + worse summarisation on highlightSUM  |
+
+BART-large is preferred since: 
+✔ Best composite score in Notebook D  
+✔ Optimised for encoder-decoder summarisation tasks (like HighlightSUM / SAMSum / CNN-DailyMail)  
+✔ Supports LoRA on attention projections (q_proj/v_proj) without special patching  
+✔ Fast training & inference on Colab T4  
+
+Even though both models received similar suggested hyperparameters, BART has the best matching architecture + best ROUGE performance + best latency.
+
+
+
 Even though `BART-large` achieved a higher ROUGE score, the `final choice for fine-tuning is `LLaMA-3.2-1B-Instruct`. Briefly, even though BART-large scored higher in raw ROUGE, LLaMA-1B is architecturally aligned with conversational data, supports chat training, works efficiently with QLoRA, and produces significantly better dialogue summaries after fine-tuning—making it the correct model for SAMSum and downstream conversational summarization systems.  
 
 From the above snippet code it can be seen that based on the dataset SAMSum and the best candidates = BART-large or LLaMA-1B, it has been choosen `LLaMA-1B` because we want to build a dialogue summarization model, and BART is not optimal for chat-formatted SAMSum inputs. Based on these considerations, it has been generated the correct final version of train_qLoRA.py for LLaMA-1B with QLoRA, which is the best balance between:  
