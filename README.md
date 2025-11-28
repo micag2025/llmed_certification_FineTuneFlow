@@ -232,9 +232,7 @@ if tokenizer.pad_token is None:
 4 **Dataset split**:  
 - Train, validation, and test subsets selected (N_SAMPLES for test subset).  
 
-
-
-
+Notebook_C generates `final_ranking.csv`that reflects the real performance trade-offs (ROUGE + throughput + efficiency) on HighlightSUM
 
  **Auto-fine-tuning Recommendation & Plan** START FROM HERE TO CHANGE 
 
