@@ -441,25 +441,22 @@ and **LLaMA-1B**:
 {
   "BART-large": {
     "size_hint": "0.4B",
-    "method": "LoRA (PEFT) or full fine-tune on medium GPU",
+    "method": "LoRA (PEFT) \u2014 encoder\u2013decoder friendly",
     "recommended_hyperparams": {
       "epochs": 3,
       "micro_batch_size": 8,
-      "lr": 0.0002,
-      "weight_decay": 0.0
+      "lr": 0.0002
     }
   },
   "LLaMA-1B": {
     "size_hint": "1B",
-    "method": "LoRA (PEFT) or full fine-tune on medium GPU",
+    "method": "LoRA or full fine-tune",
     "recommended_hyperparams": {
       "epochs": 3,
       "micro_batch_size": 8,
-      "lr": 0.0002,
-      "weight_decay": 0.0
+      "lr": 0.0002
     }
   }
-}
 ```
 
 Even though `BART-large` achieved a higher ROUGE score, the `final choice for fine-tuning is `LLaMA-3.2-1B-Instruct`. Briefly, even though BART-large scored higher in raw ROUGE, LLaMA-1B is architecturally aligned with conversational data, supports chat training, works efficiently with QLoRA, and produces significantly better dialogue summaries after fine-tuning—making it the correct model for SAMSum and downstream conversational summarization systems.  
