@@ -390,6 +390,9 @@ Including:
 
 ### Benchmark Results
 
+
+
+
 | Model        | ROUGE-1 | ROUGE-2 | ROUGE-L | Time (s) | Throughput | Efficiency | Composite Score |
 |--------------|---------|---------|---------|----------|------------|------------|-----------------|
 | BART-large   | 30.73   | 9.64    | 23.28   | 50.65    | 0.99       | 0.46       | 1.00            |
