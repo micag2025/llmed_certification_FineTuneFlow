@@ -1,12 +1,12 @@
 # LLM Engineering and Deployment (LLMED) Certification:Capstone Project: LLM Fine-Tuning & Optimization for Dialogue Summarization (HighlightSum)
 
-This repository is part of capstone project for the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) and it is linked to the publication:**LLMED Certification:Capstone Project:LLM Fine-Tuning & Optimization for Dialogue Summarization (SAMSum)** available on [Ready Tensor](https://www.readytensor.ai). This project builds a complete evaluation, selection, and fine-tuning pipeline for small-to-medium open-source language models. The objective is to identify the most efficient model for dialogue summarization, then fine-tune it using QLoRA and optimize it for real-world deployment. This was achieved using a subset of the Highlightsum dataset. This capstone project focuses on fine-tuning and benchmarking large language models for efficient, high-quality conversational summarization.
+This repository is part of capstone project for the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) and it is linked to the publication:**LLMED Certification:Capstone Project:LLM Fine-Tuning & Optimization for Dialogue Summarization (HighlightSum)** available on [Ready Tensor](https://www.readytensor.ai). This project builds a complete evaluation, selection, and fine-tuning pipeline for small-to-medium open-source language models. The objective is to identify the most efficient model for dialogue summarization, then fine-tune it using QLoRA and optimize it for real-world deployment. This was achieved using a subset of the HighlightSum dataset. This capstone project focuses on fine-tuning and benchmarking large language models for efficient, high-quality conversational summarization.
 
 ---
 
 ## Project Overview (Description)
 
-This project develops a scalable, efficient workflow for selecting, fine-tuning, and evaluating open-source LLMs (e.g. BART, T5, LLaMA, Mistral, Qwen) for the task of dialogue summarization, using a subset of the benchmark [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum) as a test dataset. The codebase automates model selection via benchmarking, applies QLoRA for parameter-efficient fine-tuning, and outputs deployable artifacts.
+This project develops a scalable, efficient workflow for selecting, fine-tuning, and evaluating open-source LLMs (e.g. BART, T5, LLaMA-1B, LLaMA-3B, Phi-3-Mini) for the task of dialogue summarization, using a subset of the benchmark [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum) as a test dataset. The codebase automates model selection via benchmarking, applies QLoRA for parameter-efficient fine-tuning, and outputs deployable artifacts.
 
 ---
 
@@ -51,7 +51,7 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
    - Produces LoRA adapter weights.
 
 3. **Evaluation**
-   - Fine-tuned model is evaluated using ROUGE and other metrics on SAMSum validation set.
+   - Fine-tuned model is evaluated using ROUGE and other metrics on HighlightSum validation set.
    - Outputs include plots and summary tables.
 
 4. **Deployment Prep**
@@ -72,26 +72,17 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 
 ---
 
-## Repository Structure
+## Repository Structure  TO BE UPDATED
 
 ```text
 📁 C:\Users\Michela\llmed_Certification_Project1_FineTuneFlow     project/
 ├── README.md
 │
-├── src/
-│   ├── run_llama_qlora.py            # QLoRA training (1k or full dataset)  / Training script
-│   ├── merge_lora.py                 # Merge LoRA → full FP16 model  / Merge adapters with base model
-│   ├── inference.py                  # Generation with LoRA or merged model  / Summarization with fine-tuned model
-│   ├── evaluate.py                   # ROUGE metrics + charts (CLI)   / Compute ROUGE, generate charts
-│   │
-│   ├── utils/
-│   │   ├── data_utils.py             # Optional helpers (preprocessing, masking)
-│   │   ├── model_utils.py            # Model loading, generation wrappers
-│   │   ├── config_utils.py           # Config loader (YAML)
-│   │
-│   ├── config.yaml                   # Training/eval configs (optional)
-│   ├── paths.py                      # Central paths for models/datasets
-│
+├── train_bart_lora.py            # QLoRA training (2k or full dataset)  / Training script
+├── merge_lora.py                 # Merge LoRA → full FP16 model  / Merge adapters with base model
+├── inference.py                  # Generation with LoRA or merged model  / Summarization with fine-tuned model
+├── evaluate.py                   # ROUGE metrics + charts (CLI)   / Compute ROUGE, generate charts
+│ 
 ├── notebooks/
 │   ├── Notebook_C.ipynb              # Benchmarking + model selection / Benchmarking & Selection
 │   ├── Notebook_D.ipynb              # Auto finetune plan recommendation / Fine-Tuning Recommendation
@@ -99,26 +90,18 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 │   ├── Notebook_F.ipynb              # Production (FastAPI, GGUF export) / Productionization Guide
 │   ├── Notebook_G.ipynb              # Stretch-goal / safety alignment  / (API/Deployment)
 │
-├── models/
-│   ├── llama1b-samsum-qlora/         # Training output (full dataset)  / OUTPUT_DIR from training (full dataset)
-│   │   ├── adapter_model.bin
-│   │   ├── adapter_config.json
-│   │   ├── tokenizer.json
-│   │   ├── tokenizer_config.json
-│   │   ├── special_tokens_map.json
-│   │   ├── generation_config.json
-│   │       └── etc...
-│   ├── llama1b-samsum-qlora-1k/      # Training output (1k subset)  / OUTPUT_DIR for 1k-subset training
+├── models (ft_outputs)/
+│   ├── bart_lora_highlightsum/      # Training output (2k subset)  / OUTPUT_DIR for 2k-subset training
 │       ├── adapter_model.bin
 │       ├── adapter_config.json
 │       └── tokenizer files
-│   ├── llama1b-samsum-merged/        # Full merged HF model   / MERGED_DIR after merge_lora.py
+│   ├── bart_merged_highlightsum/        # Full merged HF model   / MERGED_DIR after merge_lora.py
 │       ├── config.json
 │       ├── pytorch_model.bin
 │       ├── tokenizer.json
 │       ├── special_tokens_map.json
 │       └── etc...
-│   ├── gguf/                         # Quantized GGUF exports (Notebook F)
+│   ├── gguf/                         # Quantized GGUF exports (Notebook F) TO BE ENCLOSED
 │
 ├── outputs/
 │   ├── evaluation/                          # Evaluation results / Generated by Notebook E
@@ -188,11 +171,11 @@ pip install -r requirements.txt
 
 ## Running the Pipeline
 
-**Note:** All scripts (fine-tuning, merging, evaluation, and inference) require and were tested with Python 3.10.
+**Note:** All scripts (fine-tuning, merging, evaluation, and inference) require and were tested with Python 3.10. TO BE DELETED 
 
 **Model Benchmarking**
 
-Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare six candidate models, 4 small/medium models and 2 large models, ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [Mistral-7B](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2) and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) using:    
+Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare five candidate models, 4 small/medium models and 2 large models, ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) using:    
 - ROUGE-1 / ROUGE-2 / ROUGE-L scores    
 - Execution time per sample    
 - Tokens-per-second throughput    
