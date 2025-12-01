@@ -10,35 +10,137 @@ This project develops a scalable, efficient workflow for selecting, fine-tuning,
 
 ---
 
-## Workflow & Stages      (TO BE CHANGED BASED ON highlightsum)
+## Workflow & Stages for BART-LoRA Fine-Tuning    
 
-```text
-                        ┌─────────────────────┐
-                        │  Dataset (SAMSum)   │
-                        └──────────┬──────────┘
-                                   │
-                         Preprocess & Mask
-                                   │
-                         (assistant-only loss)
-                                   │
-                    ┌──────────────▼───────────────┐
-                    │    QLoRA Fine-tuning (4-bit)  │
-                    │    run_llama_qlora.py         │
-                    └──────────────┬───────────────┘
-                                   │
-                                   ▼
-                       LoRA Adapters (PEFT)
-                                   │
-                     ┌─────────────┴──────────────┐
-                     │      merge_lora.py          │
-                     └─────────────▼──────────────┘
-                         Full FP16 HF Model
-                                   │
-                ┌──────────────────┼────────────────┐
-                ▼                  ▼                ▼
-      inference.py         evaluate.py        Notebook F
-                           (ROUGE + charts)     (GGUF export)
+>_Option1_ 
+
+```text  
+
+┌────────────────────────────────────────────────────┐
+│ 1. Prepare Dataset  HighlightSum                               │
+│  ─ Raw documents                                    │
+│  ─ Highlights / summaries                           │
+│  → Format into HuggingFace dataset (train/val)      │
+└────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────┐
+│ 2. Fine-Tune Base BART with LoRA (PEFT)             │
+│  python train_bart_lora.py                          │
+│  Output: ./ft_outputs/bart_lora                     │
+│   (LoRA adapter weights + training logs)            │
+└────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────┐
+│ 3. Evaluate LoRA Model (Validation)                 │
+│  python eval_bart_lora.py                           │
+│  Output: ./metrics/lora_eval.json                   │
+│    - ROUGE-1 / ROUGE-2 / ROUGE-L                    │
+│    - BERTScore, BLEU                                │
+│    - validation_predictions.csv                     │
+└────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────┐
+│ 4. Merge LoRA into Base BART                        │
+│  python merge_lora.py                               │
+│  Output: ./ft_outputs/bart_merged                   │
+└────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────┐
+│ 5. Post-Merge Cleanup (Fix Config)                  │
+│  python post_merge_cleanup.py                       │
+│  Fixes:                                             │
+│   - forced_bos_token_id                             │
+│   - decoder_start_token_id                          │
+│   - early_stopping flag                             │
+│  Output: ./ft_outputs/bart_merged_clean             │
+└────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────┐
+│ 6. Evaluate Final Merged Model                      │
+│  python eval_bart_lora.py --model=merged_clean      │
+│  Output: ./metrics/merged_eval.json                 │
+│                                                      │
+│  🔽 Comparison (automatic in notebook)               │
+│    lora_eval.json       vs       merged_eval.json    │
+│    → Does merging preserve or improve ROUGE?         │
+└────────────────────────────────────────────────────┘
+                         │
+                         ▼
+┌────────────────────────────────────────────────────┐
+│ 7. Inference / Deployment                           │
+│  python test_inference.py                           │
+│  or deploy using:                                   │
+│   - FastAPI Endpoint                                │
+│   - Gradio Web UI                                   │
+│   - Hugging Face Space                              │
+│   - LangChain Tool                                  │
+└────────────────────────────────────────────────────┘
+
 ```
+
+The complete and up-to-date pipeline / workflow (end-to-end) including training → evaluation → merging → deployment → export.
+
+
+> Option2
+```text
+─────────────────────────────────────────────────────────────
+ 📂 1. DATA & PREP
+─────────────────────────────────────────────────────────────
+   dataset/ → your JSON or HF dataset
+        │
+        └── preprocess (optional filtering / sampling)
+             ↓
+   train.json , validation.json
+─────────────────────────────────────────────────────────────
+ 🧠 2. TRAINING (LoRA adaptation)
+─────────────────────────────────────────────────────────────
+   train_bart_lora.py
+        ↓
+   ./ft_outputs/bart_lora_highlightsum  ← LoRA adapter weights
+   (PEFT checkpoints + base model refs only)
+─────────────────────────────────────────────────────────────
+ 📊 3. PRE-MERGE EVALUATION (Optional — on LoRA model)
+─────────────────────────────────────────────────────────────
+   eval_bart_lora_before_merge.py
+        ↓
+   rouge_before.json / metrics_before.png
+   validation_predictions_before.csv
+─────────────────────────────────────────────────────────────
+ 🔗 4. MERGE LoRA WEIGHTS INTO FULL BART MODEL
+─────────────────────────────────────────────────────────────
+   merge_lora.py
+        ↓
+   ./ft_outputs/bart_merged_highlightsum   ← Full FP16 HF model
+─────────────────────────────────────────────────────────────
+ 🧹 5. POST-MERGE CLEANUP (fix generation config)
+─────────────────────────────────────────────────────────────
+   post_merge_cleanup.py
+        ↓
+   ./ft_outputs/bart_merged_clean   ← FINAL PRODUCTION MODEL
+─────────────────────────────────────────────────────────────
+ 🚦 6. POST-MERGE USAGE  (deployment stage)
+─────────────────────────────────────────────────────────────
+                   ./ft_outputs/bart_merged_clean
+                                │
+          ┌─────────────────────┼─────────────────────┐
+          ▼                     ▼                     ▼
+   inference.py          evaluate.py           Notebook-F (GGUF export)
+(Real use / API)   (ROUGE + BERTScore + BLEU     for llama.cpp /
+                       + charts dashboard)        LM Studio / Ollama
+─────────────────────────────────────────────────────────────
+ ⚙️ 7. PRODUCTION
+─────────────────────────────────────────────────────────────
+ Option A — Hugging Face pipeline
+ Option B — FastAPI / Flask service
+ Option C — GGUF quantized using llama.cpp/LM Studio
+ Option D — Batch inference at scale
+```
+
 
 To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [highlightsum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
   
@@ -127,13 +229,57 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 └── .env_example.txt                         # Example environment file for API keys
 ```
 
+
+```text
+ft_outputs/
+├─ bart_lora/               <-- LoRA adapter weights only
+├─ bart_merged/             <-- merged weights (raw)
+└─ bart_merged_clean/       <-- final model for production
+metrics/
+├─ lora_eval.json
+├─ merged_eval.json
+└─ validation_predictions.csv
+```
+
+### What the evaluation step provides
+
+Each evaluation run (`eval_bart_lora.py`) computes:
+| Metric                      | Purpose                                   |
+| --------------------------- | ----------------------------------------- |
+| ROUGE-1 / ROUGE-2 / ROUGE-L | Measures overlap with reference summaries |
+| BERTScore                   | Semantic similarity                       |
+| BLEU                        | Precision-based n-gram similarity         |
+| Avg. Length                 | Output stability check                    |
+| Failure Buckets             | Templates for common failure cases        |
+
+Plus the CSV:
+validation_predictions.csv
+| id | source_text | reference_summary | generated_summary | rougeL_score |
+
+
+###  Final comparison across model versions
+| Model version                    | When to compute               |
+| -------------------------------- | ----------------------------- |
+| ⚫ Base BART (optional)           | Before fine-tuning (baseline) |
+| 🔵 BART + LoRA (during training) | After fine-tuning             |
+| 🟢 BART merged_clean             | Final deployment model        |
+
+This allows to answer three key questions:
+| Question                             | Which comparison?                   |
+| ------------------------------------ | ----------------------------------- |
+| Is LoRA training effective?          | Base vs. BART-LoRA                  |
+| Is merging lossless?                 | BART-LoRA vs. merged_clean          |
+| Is the final model production-ready? | merged_clean eval score + inference |
+
+>_Note_: LoRA fine-tuning → evaluate → merge LoRA into base → cleanup → evaluate again → deploy.
+
 ---
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.10+    This covers all scripts unless otherwise specified 
+- Python 3.10+    This covers all scripts unless otherwise specified  TO BE DELETE
 - [HuggingFace Account & API Key](https://huggingface.co/)
 - [Weights & Biases Account](https://wandb.ai/site) (for experiment tracking—optional, but recommended)
 
@@ -173,6 +319,17 @@ pip install -r requirements.txt
 
 **Note:** All scripts (fine-tuning, merging, evaluation, and inference) require and were tested with Python 3.10. TO BE DELETED 
 
+**Dataset Selection and Preparation**  
+- Dataset: Highlightsum dataset on Hugging Face  
+- Sample Size: 2,000 training samples, 200 validation samples.  
+- Preprocessing:  
+  - Tokenization with BART tokenizer.    
+  - Input truncation (max length 768), target truncation (max length 128).    
+  - Splitting into training and validation sets.  
+Focus is on flow of data into fine-tuning pipeline rather than dataset collection or cleaning.
+
+
+
 **Model Benchmarking**
 
 Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare five candidate models, 4 small/medium models and 2 large models, ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) using:    
@@ -181,8 +338,7 @@ Run the benchmarking notebook (`notebook_C`) to compare multiple candidate model
 - Tokens-per-second throughput    
 - An overall efficiency score (accuracy vs speed)
 
-Basic preprocessing has been performed, including tokenization of dialogues with appropriate padding and truncation, batch preparation for seq2seq models, and selection of a subset from the HighlightSUM train split for benchmarking  
-Basic preprocessing performed:
+Basic preprocessing has been performed, including `tokenization of dialogues` with appropriate padding and truncation, `batch preparation` for seq2seq models, and `selection of a subset from the HighlightSUM train split` for benchmarking. In details, the basic preprocessing performed is based on:  
 - **Tokenization**:    
   - All text inputs (`dialogue`) are tokenized using the model-specific tokenizer.  
   - For causal models, if `pad_token` was missing, it was set to `eos_token` to allow batching/padding.  
