@@ -433,26 +433,33 @@ For each model, `Notebook D` produces:
 Next steps:  
 - customize the `train_qLoRA.py` to your chosen model (map tokenizers/prompt style precisely). 
 - add validation loop + ROUGE evaluation inside training to checkpoint best model.
+- produce a small sample dataset JSONL generator from HighlightSum that matches the expected supervised format.
+- estimate training time more accurately based on GPU type (T4 / L4 / A100) and hours you can run.
+
+
+Next steps:  
+- customize the `train_qLoRA.py` to the chosen model (map tokenizers/prompt style precisely). 
+- add validation loop + ROUGE evaluation inside training to checkpoint best model.
 - produce a small sample dataset JSONL generator from SAMSum that matches the expected supervised format.
-- wstimate training time more accurately if you tell me your GPU type (T4 / L4 / A100) and hours you can run.
+- estimate training time more accurately based on the GPU type (T4 / L4 / A100) and hours you can run.  
+
 
  `Customize train_qLoRA.py`
 `Notebook D` provides a generic training script, but it needs to be adapted so you can:
 1. Set your model
 2. Set your dataset / Notebook D may include a placeholder dataset.
-3. Set your training hyperparameters  
-    Your training script must include your choices for:
-    - batch size
-  	- gradient accumulation
-   - QLoRA R value
-    - learning rate
-    - warmup
-    - max steps / epochs
-    - max sequence length
+3. Set your training hyperparameters:    
+    - batch size  
+  	- gradient accumulation  
+    - QLoRA R value  
+    - learning rate  
+    - warmup  
+    - max steps / epochs  
+    - max sequence length  
 4. Set output directory 
 
-For this project:  
-> Use: GPU (T4/L4) + Python 3.10 + LoRA (FP16). This ensures:
+For this project:  TO BE CHANGED
+> Use: GPU (T4/L4) + Python 3.12 + LoRA (FP16). This ensures:
   - Training works
   - No bitsandbytes GPU problems
   - No Triton errors
@@ -469,30 +476,28 @@ QLoRA training script has been also  modifed for speed while keeping most of the
   -  Faster preprocessing: use padding="longest" then collate, avoid padding="max_length" in map to reduce token workload.
   -  Minor other tweaks (num_workers for tokenizers, cudnn benchmark, use_cache=False).
 
-The fully updated run_llama_qlora.py has been also equipped with Weights & Biases (W&B)  
+The fully updated `train_bart_lora.py` has been also equipped with Weights & Biases (W&B)  
 
 **Fine-tuning**
 
-After having customized `train_qLoRA.py` as needed, the main training script has been called `run_llama_qlora.py`, and then this has been used to launch training (QLoRA Training):
+After having customized `train_qLoRA.py` as needed, the main training script has been called `train_bart_lora.py`, and then this has been used to launch training (QLoRA Training):
 
 ```bash
-!python3.10 run_llama_qlora.py
-!python src/run_llama_qlora.py   
+!python train_bart_lora.py
 ```
 
-Training output is saved to:    
-`models/llama1b-samsum-qlora-1k/`
+Training output is saved to:   
+`models (ft_outputs)/bart_lora_highlightsum/`
 
-
-This script:  
+This script:  (TO BE VERIFIED)
 - Loads base model in FP16 (not 4-bit)  
 - Loads LoRA adapters  
 - Applies the LoRA weights  
 - Merges them into the model  
-- Saves a standalone checkpoin  
+- Saves a standalone checkpoint  
 
 
-**Merge and Evaluate**
+**Merge and Evaluate** TO BE CHANGED 
 The fully corrected, safe, and LLaMA-3.2 compatible merge_lora.py script has been used for merging:  
 - the 4-bit base model, and
 - the LoRA adapters
@@ -578,14 +583,11 @@ Including:
 | **LLaMA-3B**     | 22.2730 | 9.8715 | 16.0050 | 968.1696 | 0.2066 | 0.01653 | 0.3586 |
 | **T5-large**     | 10.7564 | 1.8843 | 9.4922 | 731.9838 | 0.2732 | 0.01297 | 0.0226 |
 
-
-> _Note_ ROUGE-L accuracy, Time= Execution time per sample,  Tokens-per-second throughput, Throughput = samples/sec = speed=total time,
-An overall efficiency score (accuracy vs speed) Efficiency score =ROUGE/time,  Composite score (final ranking)    
-
 > _Notes_:  
 - Accuracy: ROUGE-L is used as the primary accuracy metric.
 - Latency: Time refers to the average inference time per sample.
-- Efficiency: Defined as ROUGE-L divided by inference time.
+- Throughput:samples/sec = speed=total time
+- Efficiency: Defined as ROUGE-L divided by inference time = ROUGE/time  
 - Composite score: Normalized metric combining accuracy and efficiency to support model selection.
 
 The Ranking Table provides a full benchmarking and model-selection pipeline. Thus, this identifies (recommends) automatically the best model to fine-tune based on balanced performance rather than size alone. To sum up, the highest composite_score wins.  When selecting models for dialogue summarization, balancing prediction quality with inference efficiency is crucial — especially in practical or real-time settings.  
@@ -598,11 +600,11 @@ This shows the importance of balancing accuracy with inference speed when benchm
 
 ---
 
-## Auto-fine-tuning Recommendation & Plan Results   
+## Auto-fine-tuning Recommendation & Plan Results  
 
-This file (`recommandation.json` JSON with per-model method + hyperparams) is generated by Notebook D and it has been used as guidance for picking the model to fine-tune and the training approach. As it can be seen, there are two top candidates **Bart-large**
-and **LLaMA-1B**:    
+Notebook D generates `recommendations.json`, which contains per-model fine-tuning strategies and hyperparameters. Based on this analysis, BART-large and LLaMA-1B emerged as the top two candidates.  
 
+Recommendation Output
 ```json
 {
   "BART-large": {
@@ -624,74 +626,58 @@ and **LLaMA-1B**:
     }
   }
 ```
-
-`recommendation.json` confirms that the auto-selection system from Notebook D ranked BART-large highest and proposes hyperparameters for fine-tuning. Interpretation of recommendation.json
-
+Interpretation & Comparison
 | Model          | Size | Recommended PEFT Method                    | Suggested Hypers                   | Meaning                                                   |
 | -------------- | ---- | ------------------------------------------ | ---------------------------------- | --------------------------------------------------------- |
 | **BART-large** | 0.4B | **LoRA (PEFT) — encoder–decoder friendly** | epochs: 3, batch size: 8, LR: 2e-4 | **Best match for abstractive summarisation + efficiency** |
 | **LLaMA-1B**   | 1B   | LoRA **or full fine-tune**                 | epochs: 3, batch size: 8, LR: 2e-4 | Strong, but slower + worse summarisation on highlightSUM  |
 
-BART-large is preferred since: 
-✔ Best composite score in Notebook D  
-✔ Optimised for encoder-decoder summarisation tasks (like HighlightSUM / SAMSum / CNN-DailyMail)  
-✔ Supports LoRA on attention projections (q_proj/v_proj) without special patching  
-✔ Fast training & inference on Colab T4  
+Why BART-large Was Selected
+**BART-large** is the preferred choice because:
 
-Even though both models received similar suggested hyperparameters, BART has the best matching architecture + best ROUGE performance + best latency.
+✔ Highest composite score from Notebook D rankings
+✔ Optimized architecture for encoder-decoder summarization tasks (HighlightSUM)
+✔ Native LoRA support on attention projections (q_proj/v_proj) without special patching
+✔ Efficient training & inference on Colab T4 GPU
 
+While both models received identical hyperparameters, BART-large offers superior performance due to its architecture fit, ROUGE scores, and latency characteristics.  
 
-
-Even though `BART-large` achieved a higher ROUGE score, the `final choice for fine-tuning is `LLaMA-3.2-1B-Instruct`. Briefly, even though BART-large scored higher in raw ROUGE, LLaMA-1B is architecturally aligned with conversational data, supports chat training, works efficiently with QLoRA, and produces significantly better dialogue summaries after fine-tuning—making it the correct model for SAMSum and downstream conversational summarization systems.  
-
-From the above snippet code it can be seen that based on the dataset SAMSum and the best candidates = BART-large or LLaMA-1B, it has been choosen `LLaMA-1B` because we want to build a dialogue summarization model, and BART is not optimal for chat-formatted SAMSum inputs. Based on these considerations, it has been generated the correct final version of train_qLoRA.py for LLaMA-1B with QLoRA, which is the best balance between:  
-- model size (1B = lightweight)
-- chat capability (BART is NOT a chat model — it will underperform for dialogue reasoning)
-- LoRA-friendly structure
-- future inference compatibility with Notebook E
 
 **Customize `train_qLoRA.py`**  
 
 Next steps:  
-- customize the `train_qLoRA.py` to your chosen model (map tokenizers/prompt style precisely). 
+- customize the `train_qLoRA.py` to the chosen model (map tokenizers/prompt style precisely). 
 - add validation loop + ROUGE evaluation inside training to checkpoint best model.
 - produce a small sample dataset JSONL generator from SAMSum that matches the expected supervised format.
-- wstimate training time more accurately if you tell me your GPU type (T4 / L4 / A100) and hours you can run.
+- estimate training time more accurately based on the GPU type (T4 / L4 / A100) and hours you can run.  
 
-
-Need to `Customize train_qLoRA.py`
-`Notebook D` provides a generic training script, but it needs to be adapted so you can:
-1. Set your model
-2. Set your dataset / Notebook D may include a placeholder dataset.
-3. Set your training hyperparameters  
-    Your training script must include your choices for:
-    - batch size
-  	- gradient accumulation
-   - QLoRA R value
-    - learning rate
-    - warmup
-    - max steps / epochs
-    - max sequence length
-4. Set output directory
-
-After customizing train_qLoRA.py, run training`python train_qLoRA.py`   
-
-Example of customisation of train_qLoRA.py  
+Example of customization of train_qLoRA.py  
 
 ```bash
-# ============================================================
-# CONFIG
-# ============================================================  
-BASE_MODEL = "meta-llama/Llama-3.2-1B-Instruct"
-OUTPUT_DIR = "llama1b-samsum-qlora"
-EPOCHS = 1 #EPOCHS = 3
-LR = 2e-4
-BATCH_SIZE = 2  
-MAX_LENGTH = 1024 #MAX_LENGTH = 2048
+# -------------------------
+# Config
+# -------------------------
+MODEL_NAME = "facebook/bart-large-cnn"
+OUTPUT_DIR = "./ft_outputs/bart_lora_highlightsum"
+N_SAMPLES = 2000
+EPOCHS = 3                # recommended based on benchmark
+MICRO_BATCH_SIZE = 4      # per-device batch size
+GRAD_ACC = 2              # → effective batch size = 8
+LEARNING_RATE = 2e-4
+MAX_INPUT_LENGTH = 768    # reduction speeds up training significantly
+MAX_TARGET_LENGTH = 192
+WANDB_PROJECT = "highlightsum_bart_lora"
 ```
 
-> To skip longer training, EPOCHS = 1 has been selected instead of EPOCHS = 3  
+```bash
+# -------------------------
+# Load dataset
+# -------------------------
+dataset = load_dataset("knkarthick/highlightsum")["train"].select(range(N_SAMPLES))
+print(f"Loaded {len(dataset)} samples for training.")  
+```
 
+TO BE VERIFIED WHY IT IS NOT ENCLOSED THE val_data = dataset["validation"].shuffle(seed=42).select(range(200))
 
  ```bash
 # ============================================================
@@ -700,12 +686,12 @@ MAX_LENGTH = 1024 #MAX_LENGTH = 2048
 print("📚 Loading SAMSum dataset…")
 dataset = load_dataset("knkarthick/samsum")
 
-# --- USE SUBSET (1000 samples) ---
+# --- USE SUBSET (1000 samples) THIS COMES FROM SAMSUM ---
 train_data = dataset["train"].shuffle(seed=42).select(range(1000))
 val_data = dataset["validation"].shuffle(seed=42).select(range(200))
 ``` 
 
-> It has choosen to train SAMSum on a subset Recommandations sizes
+> It has choosen to train SAMSum on a subset Recommandations sizes TO BE CHANGED 
  
 | Subset size      | GPU time     | Quality   |
 | ---------------- | ------------ | --------- |
