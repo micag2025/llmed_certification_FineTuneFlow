@@ -279,7 +279,7 @@ This allows to answer three key questions:
 
 ### Prerequisites
 
-- Python 3.10+    This covers all scripts unless otherwise specified  TO BE DELETE
+- Python 3.10+    
 - [HuggingFace Account & API Key](https://huggingface.co/)
 - [Weights & Biases Account](https://wandb.ai/site) (for experiment tracking—optional, but recommended)
 
@@ -317,8 +317,6 @@ pip install -r requirements.txt
 
 ## Running the Pipeline
 
-**Note:** All scripts (fine-tuning, merging, evaluation, and inference) require and were tested with Python 3.10. TO BE DELETED 
-
 **Dataset Selection and Preparation**  
 - Dataset: Highlightsum dataset on Hugging Face  
 - Sample Size: 2,000 training samples, 200 validation samples.  
@@ -332,7 +330,7 @@ Focus is on flow of data into fine-tuning pipeline rather than dataset collectio
 
 **Model Benchmarking**
 
-Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare five candidate models, 4 small/medium models and 2 large models, ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) using:    
+Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare five candidate models ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) on 200 validation samples of Highlightsum dataset using:    
 - ROUGE-1 / ROUGE-2 / ROUGE-L scores    
 - Execution time per sample    
 - Tokens-per-second throughput    
@@ -371,7 +369,7 @@ if tokenizer.pad_token is None:
 4 **Dataset split**:  
 - Train, validation, and test subsets selected (N_SAMPLES for test subset).  
 
-Notebook_C generates `final_ranking.csv`that reflects the real performance trade-offs (ROUGE + throughput + efficiency) on HighlightSUM
+`Notebook_C` generates `final_ranking.csv`that reflects the real performance trade-offs (ROUGE + throughput + efficiency) on HighlightSUM dataset.  
 
  **Auto-fine-tuning Recommendation & Plan** START FROM HERE TO CHANGE 
 
