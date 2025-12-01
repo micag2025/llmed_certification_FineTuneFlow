@@ -371,19 +371,20 @@ if tokenizer.pad_token is None:
 
 `Notebook_C` generates `final_ranking.csv`that reflects the real performance trade-offs (ROUGE + throughput + efficiency) on HighlightSUM dataset.  
 
- **Auto-fine-tuning Recommendation & Plan** START FROM HERE TO CHANGE 
+ **Auto-fine-tuning Recommendation & Plan** 
 
-Assuming you have completed `Notebook C` and that `model_benchmarks/notebook_C/final_ranking.csv` exists.`Notebook D` (Auto-fine-tuning Recommendation & Plan) reads the final leaderboard (`model_benchmarks/notebook_C/final_ranking.csv`) and produces:  
-- a ranked recommendation (which model(s) to fine-tune),  
-- a suggested fine-tuning method (QLoRA / LoRA / full) based on model size & available GPU,  
-- recommended hyperparameters for training,  
-- an estimated compute/time heuristic (rough sketch, not billing-accurate),  
+`Notebook D` (Auto-fine-tuning Recommendation & Plan) reads the final leaderboard from `model_benchmarks/notebook_C/final_ranking.csv` (inputs) and generates a comprehensive fine-tuning strategy available in the following outputs ( `model_benchmarks/notebook_D/`):     
+- `finetune_plan.md` — Human-readable fine-tuning plan with rationale and hyperparameters
+- `recommendations.json` -	Structured recommendations per model (method + hyperparameters)  
+- `train_qLoRA.py` — Training template using PEFT + QLoRA  
+- `qLoRA_train.sh` — Bash wrapper to execute QLoRA training with Hugging Face Accelerate  
+- `hf_finetune_template.py` — Runnable template for fine-tuning via transformers + PEFT + bitsandbytes
 
-The `Notebook D` produce the following outputs (in `model_benchmarks/notebook_D/`):     
-- `finetune_plan.md` — human readable plan with reasons and hyperparams  
-- `train_qLoRA.py` — training template (PEFT + QLoRA sketch)  
-- `qLoRA_train.sh` — bash wrapper to start QLoRA training with accelerate (hf_finetune_template.py — a runnable template (PEFT / QLoRA style) to fine-tune on HF using transformers + peft + bitsandbytes)  
-- `recommendations.json` — JSON with per-model method + hyperparams  
+For each model, `Notebook D` produces:  
+- Ranked recommendation — which model(s) to fine-tune
+- Fine-tuning method — QLoRA / LoRA / full fine-tuning (based on model size & available GPU)
+- Hyperparameters — recommended training settings
+- Compute estimate — rough time/resource heuristic (informational only, not billing-accurate)  
 
 Next steps:  
 - customize the `train_qLoRA.py` to your chosen model (map tokenizers/prompt style precisely). 
@@ -537,41 +538,25 @@ Including:
 > _Note_ ROUGE-L accuracy, Time= Execution time per sample,  Tokens-per-second throughput, Throughput = samples/sec = speed=total time,
 An overall efficiency score (accuracy vs speed) Efficiency score =ROUGE/time,  Composite score (final ranking)    
 
-The Ranking Table provides a full benchmarking and model-selection pipeline. Thus, this identifies (recommends) automatically the best model to fine-tune based on balanced performance rather than size alone. To sum up, the highest composite_score wins.  
+> _Notes_:  
+- Accuracy: ROUGE-L is used as the primary accuracy metric.
+- Latency: Time refers to the average inference time per sample.
+- Efficiency: Defined as ROUGE-L divided by inference time.
+- Composite score: Normalized metric combining accuracy and efficiency to support model selection.
 
-Summary of results  
-- **BART-large**  
-  - Highest composite score (1.0).  
-  - ROUGE scores are decent (rougeL ≈ 21), and it is relatively fast (throughput ≈ 0.93 samples/sec) compared to other models.  
-  - Overall, the best trade-off between quality and efficiency on this subset.  
+The Ranking Table provides a full benchmarking and model-selection pipeline. Thus, this identifies (recommends) automatically the best model to fine-tune based on balanced performance rather than size alone. To sum up, the highest composite_score wins.  When selecting models for dialogue summarization, balancing prediction quality with inference efficiency is crucial — especially in practical or real-time settings.  
+_Key takeaways_  
+  - Composite score reflects both accuracy and speed, giving a more holistic evaluation than ROUGE alone.    
+  - Models like BART-large outperform others because they achieve solid accuracy and fast inference.    
+  - Larger causal models (e.g., LLaMA-3B, Phi-3-Mini) may achieve acceptable ROUGE scores, but their high latency significantly reduces their overall ranking.   
 
-- **LLaMA-1B**  
-  - Moderate ROUGE scores (rougeL ≈ 16) but slower (time ≈ 479s, throughput ≈ 0.42).  
-  - Composite score is about 0.45, showing that speed heavily penalized the ranking despite reasonable ROUGE performance.  
+This shows the importance of balancing accuracy with inference speed when benchmarking large models for dialogue summarization.  
 
-  **Phi-3-Mini***  
-  - Slightly better ROUGE than LLaMA-1B (rougeL ≈ 17.7) but very slow (time ≈ 1280s).  
-  - Low efficiency leads to a composite score of 0.43.
-
-- **LLaMA-3B**  
-  - ROUGE similar to LLaMA-1B (rougeL ≈ 16), but slower (time ≈ 968s).  
-  - Efficiency and throughput are low → composite score drops to 0.36.  
-
-- **T5-large**  
-  - Lowest ROUGE (rougeL ≈ 9.5) and slow (time ≈ 732s).    
-  - Composite score is near 0.02, making it the least favorable for this benchmark subset.
-
-_Key takeaways_
-  - Composite score reflects both quality and efficiency.  
-  - Models like BART-large, which may have slightly lower ROUGE than Phi-3-Mini on individual metrics, can dominate because they are much faster. 
-  - Large causal models (LLaMA-3B, Phi-3-Mini) may give competitive ROUGE but are penalized heavily due to high inference time, resulting in lower composite scores.  
-
-This shows the importance of balancing accuracy with inference speed when benchmarking large models for dialogue summarization.
-
+---
 
 ## Auto-fine-tuning Recommendation & Plan Results   
 
-This file (`recommandation.json` JSON with per-model method + hyperparams) was generated by Notebook D and it has been used as guidance for picking the model to fine-tune and the training approach. As it can be seen, there are two top candidates **Bart-large**
+This file (`recommandation.json` JSON with per-model method + hyperparams) is generated by Notebook D and it has been used as guidance for picking the model to fine-tune and the training approach. As it can be seen, there are two top candidates **Bart-large**
 and **LLaMA-1B**:    
 
 ```json
