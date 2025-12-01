@@ -140,6 +140,50 @@ The complete and up-to-date pipeline / workflow (end-to-end) including training 
  Option C — GGUF quantized using llama.cpp/LM Studio
  Option D — Batch inference at scale
 ```
+```mermaid
+flowchart TD
+    A["📂 1. DATA & PREP<br/>─────────────────<br/>Raw documents + Highlights<br/>→ HuggingFace Dataset<br/>train.json / validation.json"]
+    
+    B["🧠 2. FINE-TUNE BASE BART with LoRA<br/>─────────────────<br/>python train_bart_lora.py<br/>Output: ./ft_outputs/bart_lora<br/>(LoRA adapter weights + logs)"]
+    
+    C["📊 3. EVALUATE LoRA MODEL<br/>─────────────────<br/>python eval_bart_lora.py<br/>Output: ./metrics/lora_eval.json<br/>ROUGE / BERTScore / BLEU<br/>validation_predictions.csv"]
+    
+    D["🔗 4. MERGE LoRA INTO BASE BART<br/>─────────────────<br/>python merge_lora.py<br/>Output: ./ft_outputs/bart_merged<br/>(Full FP16 model)"]
+    
+    E["🧹 5. POST-MERGE CLEANUP<br/>─────────────────<br/>python post_merge_cleanup.py<br/>Fix: forced_bos_token_id<br/>decoder_start_token_id<br/>early_stopping flag<br/>Output: ./ft_outputs/bart_merged_clean"]
+    
+    F["🚦 6. EVALUATE FINAL MODEL<br/>─────────────────<br/>python eval_bart_lora.py<br/>--model=merged_clean<br/>Output: ./metrics/merged_eval.json<br/>Comparison: LoRA vs Merged"]
+    
+    G["⚙️ 7. PRODUCTION DEPLOYMENT"]
+    
+    G1["🔹 Option A<br/>HuggingFace Pipeline"]
+    G2["🔹 Option B<br/>FastAPI / Flask API"]
+    G3["🔹 Option C<br/>GGUF Quantized<br/>llama.cpp / LM Studio / Ollama"]
+    G4["🔹 Option D<br/>Batch Inference<br/>at Scale"]
+    
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+    E --> F
+    F --> G
+    G --> G1
+    G --> G2
+    G --> G3
+    G --> G4
+    
+    style A fill:#e1f5ff
+    style B fill:#f3e5f5
+    style C fill:#fff3e0
+    style D fill:#e8f5e9
+    style E fill:#fce4ec
+    style F fill:#f1f8e9
+    style G fill:#ede7f6
+    style G1 fill:#c8e6c9
+    style G2 fill:#c8e6c9
+    style G3 fill:#c8e6c9
+    style G4 fill:#c8e6c9
+```
 
 
 To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [highlightsum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
