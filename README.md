@@ -140,6 +140,8 @@ The complete and up-to-date pipeline / workflow (end-to-end) including training 
  Option C — GGUF quantized using llama.cpp/LM Studio
  Option D — Batch inference at scale
 ```
+
+
 ```mermaid
 flowchart TD
     A["📂 1. DATA & PREP<br/>─────────────────<br/>Raw documents + Highlights<br/>→ HuggingFace Dataset<br/>train.json / validation.json"]
@@ -171,19 +173,21 @@ flowchart TD
     G --> G2
     G --> G3
     G --> G4
-    
-    style A fill:#e1f5ff
-    style B fill:#f3e5f5
-    style C fill:#fff3e0
-    style D fill:#e8f5e9
-    style E fill:#fce4ec
-    style F fill:#f1f8e9
-    style G fill:#ede7f6
-    style G1 fill:#c8e6c9
-    style G2 fill:#c8e6c9
-    style G3 fill:#c8e6c9
-    style G4 fill:#c8e6c9
+
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [highlightsum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
@@ -429,12 +433,6 @@ For each model, `Notebook D` produces:
 - Fine-tuning method — QLoRA / LoRA / full fine-tuning (based on model size & available GPU)
 - Hyperparameters — recommended training settings
 - Compute estimate — rough time/resource heuristic (informational only, not billing-accurate)  
-
-Next steps:  
-- customize the `train_qLoRA.py` to your chosen model (map tokenizers/prompt style precisely). 
-- add validation loop + ROUGE evaluation inside training to checkpoint best model.
-- produce a small sample dataset JSONL generator from HighlightSum that matches the expected supervised format.
-- estimate training time more accurately based on GPU type (T4 / L4 / A100) and hours you can run.
 
 
 Next steps:  
@@ -766,11 +764,11 @@ All W&B integration is handled in the training script [`run_llama_qlora.py`](run
 
 #### Example Visualizations
 
-![Training Loss Curve](loss_curve.jpeg)
+![Training Loss Curve](loss_curve.jpeg) TO BE CHANGED 
 
-![Evaluation Metrics](eval_metrics.jpeg)  
+![Evaluation Metrics](eval_metrics.jpeg)   TO BE CHANGED 
 
-![GPU Utilization](gpu_utilization.jpeg)
+![GPU Utilization](gpu_utilization.jpeg)   TO BE CHANGED 
 
 > To access interactive dashboards and full experiment details, [visit our Weights & Biases project](https://wandb.ai/agostinimichelait-ready-tensor/llama-qlora-samsum).
 
