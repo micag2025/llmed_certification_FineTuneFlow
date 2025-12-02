@@ -909,7 +909,7 @@ _For 1B parameter models and limited data, this project significantly improves s
  
 ## License
 
-This project is licensed under the MIT License (TO VE VERIFED). See the [LICENSE](https://github.com/micag2025/llmed_Certification_Project1_FineTuneFlow/blob/97ed39ce6ae05e2b0546450448328841ef67816f/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/micag2025/llmed_Certification_Project1_FineTuneFlow/blob/97ed39ce6ae05e2b0546450448328841ef67816f/LICENSE) file for details.
 
 ---
 
