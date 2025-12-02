@@ -1,0 +1,52 @@
+{
+  "BART-large": {
+    "model_id": "facebook/bart-large-cnn",
+    "rouge1": 28.10538263801805,
+    "rouge2": 9.183428921420736,
+    "rougeL": 21.06263592241094,
+    "time": 101.63183641433716,
+    "throughput": 1.9678872984704436,
+    "efficiency": 0.20724446852009892,
+    "composite_score": 1.230693974550218
+  },
+  "LLaMA-1B": {
+    "model_id": "meta-llama/Llama-3.2-1B-Instruct",
+    "rouge1": 28.635874255728172,
+    "rouge2": 9.618124519432426,
+    "rougeL": 21.205387493718362,
+    "time": 393.9294948577881,
+    "throughput": 0.5077050655275298,
+    "efficiency": 0.05383041323517471,
+    "composite_score": 0.4632295061715081
+  },
+  "LLaMA-3B": {
+    "model_id": "meta-llama/Llama-3.2-3B-Instruct",
+    "rouge1": 23.771792578237726,
+    "rouge2": 8.222793347601673,
+    "rougeL": 17.30620340596481,
+    "time": 748.2234883308411,
+    "throughput": 0.26729981498731864,
+    "efficiency": 0.023129724842736486,
+    "composite_score": -0.16234214229540284
+  },
+  "Phi-3-Mini": {
+    "model_id": "microsoft/Phi-3-mini-4k-instruct",
+    "rouge1": 20.55044153573202,
+    "rouge2": 7.028457391087324,
+    "rougeL": 14.306676735319487,
+    "time": 987.636198759079,
+    "throughput": 0.2025037156913559,
+    "efficiency": 0.014485775990486366,
+    "composite_score": -0.5716190747330833
+  },
+  "T5-large": {
+    "model_id": "t5-large",
+    "rouge1": 10.977281761408955,
+    "rouge2": 1.9440093037647932,
+    "rougeL": 9.636944068641258,
+    "time": 263.02784180641174,
+    "throughput": 0.7603757785732805,
+    "efficiency": 0.03663849424630127,
+    "composite_score": -0.9599622636932412
+  }
+}
