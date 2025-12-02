@@ -177,20 +177,7 @@ flowchart TD
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [highlightsum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
+To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
   
 1. **Benchmarking & Model Selection**
    - Multiple models are compared (BART, T5, LLaMA, etc.) on ROUGE, speed, and efficiency.
@@ -374,8 +361,6 @@ pip install -r requirements.txt
   - Splitting into training and validation sets.  
 Focus is on flow of data into fine-tuning pipeline rather than dataset collection or cleaning.
 
-
-
 **Model Benchmarking**
 
 Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare five candidate models ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) on 200 validation samples of Highlightsum dataset using:    
@@ -517,8 +502,8 @@ The LLaMA-3.2 compatible evaluation script (ROUGE on SAMSum validation set), `ev
 
 
 ```bash
-!python3.10 merge_lora.py
-!python3.10 evaluate.py
+!python merge_lora.py
+!python evaluate.py
 ```
 
 This produces a new folder:  
@@ -543,7 +528,7 @@ python src/merge_lora.py \
 **Inference**
 
 ```bash
-!python3.10 inference.py
+!python inference.py
 ```
 Run Inference
 python src/inference.py \
@@ -630,13 +615,11 @@ Interpretation & Comparison
 | **BART-large** | 0.4B | **LoRA (PEFT) — encoder–decoder friendly** | epochs: 3, batch size: 8, LR: 2e-4 | **Best match for abstractive summarisation + efficiency** |
 | **LLaMA-1B**   | 1B   | LoRA **or full fine-tune**                 | epochs: 3, batch size: 8, LR: 2e-4 | Strong, but slower + worse summarisation on highlightSUM  |
 
-Why BART-large Was Selected
-**BART-large** is the preferred choice because:
-
-✔ Highest composite score from Notebook D rankings
-✔ Optimized architecture for encoder-decoder summarization tasks (HighlightSUM)
-✔ Native LoRA support on attention projections (q_proj/v_proj) without special patching
-✔ Efficient training & inference on Colab T4 GPU
+**BART-large** was selected and it is the preferred choice because:  
+- Highest composite score from Notebook D rankings  
+- Optimized architecture for encoder-decoder summarization tasks (HighlightSUM)  
+- Native LoRA support on attention projections (q_proj/v_proj) without special patching  
+- Efficient training & inference on Colab T4 GPU  
 
 While both models received identical hyperparameters, BART-large offers superior performance due to its architecture fit, ROUGE scores, and latency characteristics.  
 
