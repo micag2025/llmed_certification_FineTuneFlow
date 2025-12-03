@@ -550,17 +550,6 @@ The project manager opens the meeting by stating that they will address function
 | T5-large    | t5-large                                       |  10.977   |   1.944   |   9.637   |   263.028   |    0.760    |    0.037    |     -0.960      |
 
 > _Notes_:  
-> _Notes_:  
-
-
-
-
-
-
-
-
-
-> _Notes_:  
 - Accuracy: ROUGE-L is used as the primary accuracy metric.
 - Latency: Time refers to the average inference time per sample.
 - Throughput:samples/sec = speed=total time
