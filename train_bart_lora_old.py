@@ -1,9 +1,10 @@
 # =====================================================
 # Optimized BART-LoRA Training for T4 GPU
-# Effective batch size = 8 (micro-batch 4 × grad_acc 2)
-# Includes 2000 train + 200 validation samples
-# Consistent with all evaluation & inference notebooks
+# Uses effective batch size 8 via gradient accumulation
+# Includes padding, length updates, and stable T4 config
 # =====================================================
+
+# !pip install -q datasets transformers peft wandb accelerate
 
 import os
 import wandb
@@ -24,16 +25,17 @@ from peft import LoraConfig, get_peft_model
 MODEL_NAME = "facebook/bart-large-cnn"
 OUTPUT_DIR = "/content/llmed_certification_FineTuneFlow/ft_outputs/bart_lora_highlightsum"
 
-TRAIN_SAMPLES = 2000
-VAL_SAMPLES = 200
+#OUTPUT_DIR = "./ft_outputs/bart_lora_highlightsum"
 
+
+N_SAMPLES = 2000
 EPOCHS = 3
 MICRO_BATCH_SIZE = 4
-GRAD_ACC = 2                       # → effective batch size = 8
+GRAD_ACC = 2                     # → effective batch size = 8
 LEARNING_RATE = 2e-4
 
-MAX_INPUT_LENGTH = 768
-MAX_TARGET_LENGTH = 192
+MAX_INPUT_LENGTH = 768           # reduced from 1024 → faster
+MAX_TARGET_LENGTH = 192          # increased summary length
 
 WANDB_PROJECT = "highlightsum_bart_lora"
 
@@ -45,55 +47,40 @@ print(f"🔥 Using device: {device}")
 # -------------------------
 # W&B (optional)
 # -------------------------
-# Comment to disable logging:
+# Comment out the next line to disable W&B logging
 wandb.login()
-wandb.init(project=WANDB_PROJECT, name="bart_lora_t4_optimized")
-
 
 # -------------------------
 # Load Dataset
 # -------------------------
-print("\n📥 Loading HighlightSUM dataset...")
-
-dataset = load_dataset("knkarthick/highlightsum")
-
-train_data = dataset["train"].shuffle(seed=42).select(range(TRAIN_SAMPLES))
-val_data   = dataset["validation"].shuffle(seed=42).select(range(VAL_SAMPLES))
-
-print(f"📊 Training samples:   {len(train_data)}")
-print(f"📊 Validation samples: {len(val_data)}")
-
+dataset = load_dataset("knkarthick/highlightsum")["train"].select(range(N_SAMPLES))
+print(f"Loaded {len(dataset)} samples.")
 
 # -------------------------
 # Tokenizer
 # -------------------------
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
-
+tokenizer.pad_token = tokenizer.eos_token if tokenizer.pad_token is None else tokenizer.pad_token
 
 # -------------------------
 # Model + LoRA
 # -------------------------
-print("\n🔧 Loading BART-large...")
 model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
 
-print("🔌 Applying LoRA...")
 lora_config = LoraConfig(
     r=8,
     lora_alpha=32,
-    target_modules=["q_proj", "v_proj"],   # validated for BART
+    target_modules=["q_proj", "v_proj"],   # correct for BART
     lora_dropout=0.05,
     bias="none",
     task_type="SEQ_2_SEQ_LM"
 )
-
 model = get_peft_model(model, lora_config)
 model.to(device)
 
-
 # -------------------------
-# Tokenization (static padding)
+# Tokenization
+# (NOW INCLUDES STATIC PADDING → faster & stable)
 # -------------------------
 def tokenize_fn(example):
     inputs = tokenizer(
@@ -112,9 +99,7 @@ def tokenize_fn(example):
     inputs["labels"] = label_ids
     return inputs
 
-train_dataset = train_data.map(tokenize_fn, remove_columns=train_data.column_names)
-val_dataset   = val_data.map(tokenize_fn, remove_columns=val_data.column_names)
-
+tokenized_dataset = dataset.map(tokenize_fn, remove_columns=dataset.column_names)
 
 # -------------------------
 # Data Collator
@@ -125,7 +110,6 @@ data_collator = DataCollatorForSeq2Seq(
     padding=True
 )
 
-
 # -------------------------
 # Training Arguments
 # -------------------------
@@ -135,16 +119,12 @@ training_args = TrainingArguments(
     gradient_accumulation_steps=GRAD_ACC,
     num_train_epochs=EPOCHS,
     learning_rate=LEARNING_RATE,
-
     fp16=True,
-    evaluation_strategy="epoch",
     logging_steps=50,
-    save_strategy="epoch",
-
+    save_strategy="no",              # save ONLY final model → MUCH faster
     report_to="wandb",
     run_name="bart_lora_highlightsum_t4_optimized",
 )
-
 
 # -------------------------
 # Trainer
@@ -152,24 +132,19 @@ training_args = TrainingArguments(
 trainer = Trainer(
     model=model,
     args=training_args,
-    train_dataset=train_dataset,
-    eval_dataset=val_dataset,
-    data_collator=data_collator,
+    train_dataset=tokenized_dataset,
+    data_collator=data_collator
 )
-
 
 # -------------------------
 # Train
 # -------------------------
-print("\n🚀 Starting training...")
 trainer.train()
-
 
 # -------------------------
 # Save final model
 # -------------------------
-print("\n💾 Saving model...")
 model.save_pretrained(OUTPUT_DIR)
 tokenizer.save_pretrained(OUTPUT_DIR)
 
-print(f"\n🎉 Fine-tuned BART-LoRA saved to: {OUTPUT_DIR}")
+print(f"\n🎉 Fine-tuned model saved to: {OUTPUT_DIR}")
