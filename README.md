@@ -10,14 +10,14 @@ This project develops a scalable, efficient workflow for selecting, fine-tuning,
 
 ---
 
-## Workflow & Stages for BART-LoRA Fine-Tuning    
+## Workflow & Stages for BART-LoRA Fine-Tuning  
 
->_Option1_ 
+The complete and up-to-date pipeline / workflow (end-to-end) including training → evaluation → merging → deployment → export (production)
 
 ```text  
 
 ┌────────────────────────────────────────────────────┐
-│ 1. Prepare Dataset  HighlightSum                               │
+│ 1. Inspection and Prepare Dataset  HighlightSum                               │
 │  ─ Raw documents                                    │
 │  ─ Highlights / summaries                           │
 │  → Format into HuggingFace dataset (train/val)      │
@@ -27,15 +27,15 @@ This project develops a scalable, efficient workflow for selecting, fine-tuning,
 ┌────────────────────────────────────────────────────┐
 │ 2. Fine-Tune Base BART with LoRA (PEFT)             │
 │  python train_bart_lora.py                          │
-│  Output: ./ft_outputs/bart_lora                     │
-│   (LoRA adapter weights + training logs)            │
+│  Output: ./ft_outputs/bart_lora_highlightsum                    │
+│   (LoRA adapter weights + training logs)            │(PEFT checkpoints + base model refs only)
 └────────────────────────────────────────────────────┘
                          │
                          ▼
 ┌────────────────────────────────────────────────────┐
 │ 3. Evaluate LoRA Model (Validation)                 │
 │  python eval_bart_lora.py                           │
-│  Output: ./metrics/lora_eval.json                   │
+│  Output: ./metrics/lora_eval.json ?                   │
 │    - ROUGE-1 / ROUGE-2 / ROUGE-L                    │
 │    - BERTScore, BLEU                                │
 │    - validation_predictions.csv                     │
@@ -44,13 +44,13 @@ This project develops a scalable, efficient workflow for selecting, fine-tuning,
                          ▼
 ┌────────────────────────────────────────────────────┐
 │ 4. Merge LoRA into Base BART                        │
-│  python merge_lora.py                               │
-│  Output: ./ft_outputs/bart_merged                   │
+│  python merge_bart_lora.py                               │
+│  Output: ./ft_outputs/bart_merged_highlighsum                   │
 └────────────────────────────────────────────────────┘
                          │
                          ▼
 ┌────────────────────────────────────────────────────┐
-│ 5. Post-Merge Cleanup (Fix Config)                  │
+│ 5. Post-Merge Cleanup (Fix Config)    ???              │
 │  python post_merge_cleanup.py                       │
 │  Fixes:                                             │
 │   - forced_bos_token_id                             │
@@ -61,7 +61,7 @@ This project develops a scalable, efficient workflow for selecting, fine-tuning,
                          │
                          ▼
 ┌────────────────────────────────────────────────────┐
-│ 6. Evaluate Final Merged Model                      │
+│ 6. Evaluate Final Merged Model      TO BE ENCLOSED                │
 │  python eval_bart_lora.py --model=merged_clean      │
 │  Output: ./metrics/merged_eval.json                 │
 │                                                      │
@@ -74,56 +74,15 @@ This project develops a scalable, efficient workflow for selecting, fine-tuning,
 ┌────────────────────────────────────────────────────┐
 │ 7. Inference / Deployment                           │
 │  python test_inference.py                           │
-│  or deploy using:                                   │
-│   - FastAPI Endpoint                                │
-│   - Gradio Web UI                                   │
+│  or deploy using:                                    │
+│   - FastAPI Endpoint   (?)                            │
+│   - Gradio Web UI      (?)                             │
 │   - Hugging Face Space                              │
-│   - LangChain Tool                                  │
+│                                                     │
 └────────────────────────────────────────────────────┘
 
-```
-
-The complete and up-to-date pipeline / workflow (end-to-end) including training → evaluation → merging → deployment → export.
-
-
-> Option2
-```text
 ─────────────────────────────────────────────────────────────
- 📂 1. DATA & PREP
-─────────────────────────────────────────────────────────────
-   dataset/ → your JSON or HF dataset
-        │
-        └── preprocess (optional filtering / sampling)
-             ↓
-   train.json , validation.json
-─────────────────────────────────────────────────────────────
- 🧠 2. TRAINING (LoRA adaptation)
-─────────────────────────────────────────────────────────────
-   train_bart_lora.py
-        ↓
-   ./ft_outputs/bart_lora_highlightsum  ← LoRA adapter weights
-   (PEFT checkpoints + base model refs only)
-─────────────────────────────────────────────────────────────
- 📊 3. PRE-MERGE EVALUATION (Optional — on LoRA model)
-─────────────────────────────────────────────────────────────
-   eval_bart_lora_before_merge.py
-        ↓
-   rouge_before.json / metrics_before.png
-   validation_predictions_before.csv
-─────────────────────────────────────────────────────────────
- 🔗 4. MERGE LoRA WEIGHTS INTO FULL BART MODEL
-─────────────────────────────────────────────────────────────
-   merge_lora.py
-        ↓
-   ./ft_outputs/bart_merged_highlightsum   ← Full FP16 HF model
-─────────────────────────────────────────────────────────────
- 🧹 5. POST-MERGE CLEANUP (fix generation config)
-─────────────────────────────────────────────────────────────
-   post_merge_cleanup.py
-        ↓
-   ./ft_outputs/bart_merged_clean   ← FINAL PRODUCTION MODEL
-─────────────────────────────────────────────────────────────
- 🚦 6. POST-MERGE USAGE  (deployment stage)
+  6. POST-MERGE USAGE  (deployment stage)
 ─────────────────────────────────────────────────────────────
                    ./ft_outputs/bart_merged_clean
                                 │
@@ -133,49 +92,13 @@ The complete and up-to-date pipeline / workflow (end-to-end) including training 
 (Real use / API)   (ROUGE + BERTScore + BLEU     for llama.cpp /
                        + charts dashboard)        LM Studio / Ollama
 ─────────────────────────────────────────────────────────────
- ⚙️ 7. PRODUCTION
+  7. PRODUCTION
 ─────────────────────────────────────────────────────────────
  Option A — Hugging Face pipeline
  Option B — FastAPI / Flask service
  Option C — GGUF quantized using llama.cpp/LM Studio
  Option D — Batch inference at scale
 ```
-
-
-```mermaid
-flowchart TD
-    A["📂 1. DATA & PREP<br/>─────────────────<br/>Raw documents + Highlights<br/>→ HuggingFace Dataset<br/>train.json / validation.json"]
-    
-    B["🧠 2. FINE-TUNE BASE BART with LoRA<br/>─────────────────<br/>python train_bart_lora.py<br/>Output: ./ft_outputs/bart_lora<br/>(LoRA adapter weights + logs)"]
-    
-    C["📊 3. EVALUATE LoRA MODEL<br/>─────────────────<br/>python eval_bart_lora.py<br/>Output: ./metrics/lora_eval.json<br/>ROUGE / BERTScore / BLEU<br/>validation_predictions.csv"]
-    
-    D["🔗 4. MERGE LoRA INTO BASE BART<br/>─────────────────<br/>python merge_lora.py<br/>Output: ./ft_outputs/bart_merged<br/>(Full FP16 model)"]
-    
-    E["🧹 5. POST-MERGE CLEANUP<br/>─────────────────<br/>python post_merge_cleanup.py<br/>Fix: forced_bos_token_id<br/>decoder_start_token_id<br/>early_stopping flag<br/>Output: ./ft_outputs/bart_merged_clean"]
-    
-    F["🚦 6. EVALUATE FINAL MODEL<br/>─────────────────<br/>python eval_bart_lora.py<br/>--model=merged_clean<br/>Output: ./metrics/merged_eval.json<br/>Comparison: LoRA vs Merged"]
-    
-    G["⚙️ 7. PRODUCTION DEPLOYMENT"]
-    
-    G1["🔹 Option A<br/>HuggingFace Pipeline"]
-    G2["🔹 Option B<br/>FastAPI / Flask API"]
-    G3["🔹 Option C<br/>GGUF Quantized<br/>llama.cpp / LM Studio / Ollama"]
-    G4["🔹 Option D<br/>Batch Inference<br/>at Scale"]
-    
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    E --> F
-    F --> G
-    G --> G1
-    G --> G2
-    G --> G3
-    G --> G4
-
-```
-
 
 To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
   
@@ -201,7 +124,7 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 ## Features / What’s Included
 
 - Automated benchmarking and composite ranking of open LLMs
-- QLoRA-based fine-tuning pipeline (easy to adapt to your dataset)
+- QLoRA-based fine-tuning pipeline 
 - Inference & evaluation scripts
 - Artifacts for deployment (merged weights, GGUF exports)
 - Experiment tracking (Weights & Biases)
@@ -270,7 +193,7 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 ft_outputs/
 ├─ bart_lora/               <-- LoRA adapter weights only
 ├─ bart_merged/             <-- merged weights (raw)
-└─ bart_merged_clean/       <-- final model for production
+└─ bart_merged_clean/       <-- final model for production ?
 metrics/
 ├─ lora_eval.json
 ├─ merged_eval.json
@@ -296,9 +219,9 @@ validation_predictions.csv
 ###  Final comparison across model versions
 | Model version                    | When to compute               |
 | -------------------------------- | ----------------------------- |
-| ⚫ Base BART (optional)           | Before fine-tuning (baseline) |
-| 🔵 BART + LoRA (during training) | After fine-tuning             |
-| 🟢 BART merged_clean             | Final deployment model        |
+|  Base BART (optional)           | Before fine-tuning (baseline) |
+|  BART + LoRA (during training) | After fine-tuning             |
+|  BART merged_clean             | Final deployment model        |
 
 This allows to answer three key questions:
 | Question                             | Which comparison?                   |
@@ -358,9 +281,10 @@ pip install -r requirements.txt
 - Sample Size: 2,000 training samples, 200 validation samples.  
 - Preprocessing:  
   - Tokenization with BART tokenizer.    
-  - Input truncation (max length 768), target truncation (max length 128).    
+  - Input truncation (max length 768), target truncation (max length 192).    
   - Splitting into training and validation sets.  
-Focus is on flow of data into fine-tuning pipeline rather than dataset collection or cleaning.
+
+Here the focus is on _flow of data into fine-tuning pipeline_ rather than dataset collection or cleaning.
 
 **Model Benchmarking**
 
@@ -374,10 +298,9 @@ Basic preprocessing has been performed, including `tokenization of dialogues` wi
 - **Tokenization**:    
   - All text inputs (`dialogue`) are tokenized using the model-specific tokenizer.  
   - For causal models, if `pad_token` was missing, it was set to `eos_token` to allow batching/padding.  
-  - Seq2seq and causal models both use truncation and padding (`max_length=1024`) to ensure consistent tensor shapes.  
+  - Seq2seq and causal models both use truncation and padding (`max_length=768`) to ensure consistent tensor shapes.  
 - **Dataset splitting**:  
   - Selected a subset of samples (`N_SAMPLES`) from the HighlightSUM train split for benchmarking.  
-  = If desired, you could extend this to full train/validation/test splits for proper evaluation.  
 - **Batching (seq2seq models)**:
  - Inputs are batched to reduce memory usage on GPU, which is part of preprocessing before model inference.
 
@@ -396,8 +319,8 @@ if tokenizer.pad_token is None:
 ```
 - Applied for **all models**, including causal LMs.
 2 **Batching & padding**:  
-- Seq2seq models use `padding="longest"` and `max_length=1024`.  
-- Causal models use `padding="max_length"` and max_length=1024.    
+- Seq2seq models use `padding="longest"` and `max_length=768`.  
+- Causal models use `padding="max_length"` and `max_length=768`.    
 3 **Truncation**:  
 - Ensures sequences don’t exceed model’s max input length.  
 4 **Dataset split**:  
@@ -407,12 +330,11 @@ if tokenizer.pad_token is None:
 
  **Auto-fine-tuning Recommendation & Plan** 
 
-`Notebook D` (Auto-fine-tuning Recommendation & Plan) reads the final leaderboard from `model_benchmarks/notebook_C/final_ranking.csv` (inputs) and generates a comprehensive fine-tuning strategy available in the following outputs ( `model_benchmarks/notebook_D/`):     
+`Notebook D` (Auto-fine-tuning Recommendation & Plan) reads the final leaderboard from `model_benchmarks/notebook_C/final_ranking.csv` (inputs) and generates a comprehensive fine-tuning strategy available in the following outputs (`model_benchmarks/notebook_D/`):     
 - `finetune_plan.md` — Human-readable fine-tuning plan with rationale and hyperparameters
 - `recommendations.json` -	Structured recommendations per model (method + hyperparameters)  
-- `train_qLoRA.py` — Training template using PEFT + QLoRA  
-- `qLoRA_train.sh` — Bash wrapper to execute QLoRA training with Hugging Face Accelerate  
-- `hf_finetune_template.py` — Runnable template for fine-tuning via transformers + PEFT + bitsandbytes
+- `train_qLoRA.py` — Training template using PEFT + QLoRA  (TO BE RENAMED?)
+- `qLoRA_train.sh` — Bash wrapper to execute QLoRA training with Hugging Face Accelerate  (TO BE RENAMED?)
 
 For each model, `Notebook D` produces:  
 - Ranked recommendation — which model(s) to fine-tune
@@ -424,7 +346,7 @@ For each model, `Notebook D` produces:
 Next steps:  
 - customize the `train_qLoRA.py` to the chosen model (map tokenizers/prompt style precisely). 
 - add validation loop + ROUGE evaluation inside training to checkpoint best model.
-- produce a small sample dataset JSONL generator from SAMSum that matches the expected supervised format.
+- produce a small sample dataset JSONL generator from HighlightSumthat matches the expected supervised format.
 - estimate training time more accurately based on the GPU type (T4 / L4 / A100) and hours you can run.  
 
 
@@ -442,21 +364,18 @@ Next steps:
     - max sequence length  
 4. Set output directory 
 
-For this project:  TO BE CHANGED
-> Use: GPU (T4/L4) + Python 3.12 + LoRA (FP16). This ensures:
-  - Training works
-  - No bitsandbytes GPU problems
-  - No Triton errors
-  - Compatible with LLaMA 3.2–1B    
-  - Stable on free Colab
+For this project:  
+> Use: Optimized BART-LoRA Training for T4 GPU  
+       Uses effective batch size 8 via gradient accumulation  
+       Includes padding, length updates, and stable T4 config    
 
 QLoRA training script has been also  modifed for speed while keeping most of the QLoRA benefits and model quality.  Key changes:
-  - Shorter context: MAX_LENGTH = 1024 (was 2048) — biggest speed win.  
+  - Shorter context: MAX_LENGTH = 768 — biggest speed win.  
   - Smaller LoRA rank: r = 8 (was 16) — less computation, still effective.  
   - Smarter batching: smaller per-device batch + larger gradient_accumulation_steps to keep effective batch size.
   - Cap total steps: use max_steps to avoid unnecessary epochs (you can tune).
   - Fewer saves/eval/logging: reduce IO overhead.
-  -  Keep gradient checkpointing and fp16 to reduce memory & speed tradeoff.
+  -  Keep gradient checkpointing and fp16 to reduce memory & speed tradeoff.  ??
   -  Faster preprocessing: use padding="longest" then collate, avoid padding="max_length" in map to reduce token workload.
   -  Minor other tweaks (num_workers for tokenizers, cudnn benchmark, use_cache=False).
 
@@ -480,6 +399,7 @@ This script:  (TO BE VERIFIED)
 - Merges them into the model  
 - Saves a standalone checkpoint  
 
+>_Note_ See Correct Flow Summary > training > evaluation> merge>inference 
 
 **Merge and Evaluate** TO BE CHANGED 
 The fully corrected, safe, and LLaMA-3.2 compatible merge_lora.py script has been used for merging:  
@@ -517,23 +437,12 @@ llama1b-samsum-merged/
     tokenizer.model
 ...
 
-Merge LoRA → Full Model  
-
-```bash
-python src/merge_lora.py \
-    --base_model meta-llama/Llama-3.2-1B-Instruct \
-    --lora_path models/llama1b-samsum-qlora-1k \
-    --output_path models/llama1b-samsum-merged
-```
-
 **Inference**
 
 ```bash
 !python inference.py
 ```
-Run Inference
-python src/inference.py \
-    --model_dir models/llama1b-samsum-qlora-1k
+
 Example:  
 Input dialogue:
 John: Are you joining the call?
@@ -555,17 +464,100 @@ Including:
 
 ---
 
+
+Full Fine-Tuning Workflow 
+for the BART-LoRA: training → inference → evaluation → metrics → merge (optional)
+**STEP 1 — Train LoRA Model**
+
+Runs:
+train_bart_lora.py
+
+✔ Produces:
+/content/.../ft_outputs/bart_lora_highlightsum
+
+**STEP 2 — Evaluate on Validation Split (ROUGE only)**
+
+Runs:
+eval_bart_lora.py
+
+✔ Produces basic evaluation CSV:
+validation_predictions.csv
+(with columns: dialogue, human_summary, model_summary, rouge scores)
+
+⚠️ This CSV is required for the Metrics step.
+
+**STEP 3 — Full Metrics (ROUGE + BERTScore + BLEU)**
+
+Runs:
+eval_metrics_bart_lora
+/metrics/validation_predictions.csv
+
+✔ Produces enriched CSV:
+validation_predictions_metrics.csv
+(contains rouge1, rouge2, rougeL, bert_f1, BLEU)
+
+**STEP 4 — Optional: Merge LoRA → Full Model**
+
+Runs:
+merge_bart_lora.py
+
+✔ Produces merged full model (no adapters):
+bart_merged_highlightsum/
+
+Only needed if:  
+- you want to deploy without LoRA  
+- or run inference outside PEFT context  
+
+**STEP 5 — Inference Script (for new unseen data)**
+
+Runs:
+inference_bart_lora.py (the updated version)
+
+✔ Can load either:
+LoRA model
+OR merged model
+
 ## Usage Examples  
+
+### Inspection Dataset
+
+```
+ 📊 Dataset Overview:
+  Train splits: 27,401 samples
+  Val splits: 1,360 samples
+  Test splits: 2,347 samples
+
+🔑 Keys: ['id', 'dialogue', 'summary']
+
+📘 First training example:
+
+🔸 DIALOGUE (32390 chars):
+Speaker A: Cool. Do you wanna give me the little cable thing? Yeah. Cool. Ah, that's why it won't meet. Okay, cool. Yep, cool. Okay, functional requirements. Alright, yeah. It's working. Cool, okay. So what I have, wh where I've got my information from is a survey where the usability lab um observed...
+
+🔹 SUMMARY (1299 chars):
+The project manager opens the meeting by stating that they will address functional design and then going over the agenda. The industrial designer gives his presentation, explaining how remote controls function and giving personal preference to a clear, simple design that upgrades the technology as well as incorporates the latest features in chip design. The interface specialist gives her presentation next, addressing the main purpose of a remote control. She pinpoints the main functions of on/off, channel-switching, numbers for choosing particular channels, and volume; and also suggests adding a menu button to change settings such as brightness on the screen. She gives preference to a remote that is small, easy to use, and follows some conventions. The group briefly discusses the possibility of using an LCD screen if cost allows it, since it is fancy and fashionable. The marketing expert presents, giving statistical information from a survey of 100 subjects. She prefers a remote that is sleek, stylish, sophisticated, cool, beautiful, functional, solar-powered, has long battery life, and has a locator. They discuss the target group, deciding it should be 15-35 year olds. After they talk about features they might include, the project manager closes the meeting by allocating tasks.  
+```
+
 
 ### Benchmark Results
 
-| Model        | ROUGE-1 | ROUGE-2 | ROUGE-L | Time (s) | Throughput | Efficiency | Composite Score |
-|-------------|---------|---------|---------|----------|-------------|-------------|------------------|
-| **BART-large**   | 28.1073 | 9.2290 | 21.0380 | 214.2999 | 0.9333 | 0.09817 | **1.0000** |
-| **LLaMA-1B**     | 22.2260 | 9.5524 | 16.0496 | 479.1411 | 0.4174 | 0.03350 | 0.4514 |
-| **Phi-3-Mini**   | 24.1553 | 10.4631 | 17.6686 | 1280.1139 | 0.1562 | 0.01380 | 0.4273 |
-| **LLaMA-3B**     | 22.2730 | 9.8715 | 16.0050 | 968.1696 | 0.2066 | 0.01653 | 0.3586 |
-| **T5-large**     | 10.7564 | 1.8843 | 9.4922 | 731.9838 | 0.2732 | 0.01297 | 0.0226 |
+| model       | model_id                                       |   rouge1 |   rouge2 |   rougeL |       time | throughput | efficiency | composite_score |
+|-------------|------------------------------------------------|--------:|--------:|--------:|-----------:|----------:|----------:|----------------:|
+| BART-large  | facebook/bart-large-cnn                        | 28.105383|  9.183429| 21.062636|  101.631836|   1.967887|   0.207244|        1.230694 |
+| LLaMA-1B    | meta-llama/Llama-3.2-1B-Instruct               | 28.635874|  9.618125| 21.205387|  393.929495|   0.507705|   0.053830|        0.463230 |
+| LLaMA-3B    | meta-llama/Llama-3.2-3B-Instruct               | 23.771793|  8.222793| 17.306203|  748.223488|   0.267300|   0.023130|       -0.162342 |
+| Phi-3-Mini  | microsoft/Phi-3-mini-4k-instruct               | 20.550442|  7.028457| 14.306677|  987.636199|   0.202504|   0.014486|       -0.571619 |
+| T5-large    | t5-large                                       | 10.977282|  1.944009|  9.636944|  263.027842|   0.760376|   0.036638|       -0.959962 |
+
+> _Notes_:  
+
+
+
+
+
+
+
+
 
 > _Notes_:  
 - Accuracy: ROUGE-L is used as the primary accuracy metric.
