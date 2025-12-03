@@ -615,7 +615,7 @@ Next steps:
 - produce a small sample dataset JSONL generator from SAMSum that matches the expected supervised format.
 - estimate training time more accurately based on the GPU type (T4 / L4 / A100) and hours you can run.  
 
-Example of customization of train_qLoRA.py  
+Example of `customization of train_qLoRA.py`  
 
 ```bash
 # -------------------------
@@ -641,30 +641,16 @@ dataset = load_dataset("knkarthick/highlightsum")["train"].select(range(N_SAMPLE
 print(f"Loaded {len(dataset)} samples for training.")  
 ```
 
-TO BE VERIFIED WHY IT IS NOT ENCLOSED THE val_data = dataset["validation"].shuffle(seed=42).select(range(200))
-
- ```bash
-# ============================================================
-# DATASET + CORRECT MASKING (assistant-only loss)
-# ============================================================
-print("📚 Loading SAMSum dataset…")
-dataset = load_dataset("knkarthick/samsum")
-
-# --- USE SUBSET (1000 samples) THIS COMES FROM SAMSUM ---
-train_data = dataset["train"].shuffle(seed=42).select(range(1000))
-val_data = dataset["validation"].shuffle(seed=42).select(range(200))
-``` 
-
-> It has choosen to train SAMSum on a subset Recommandations sizes TO BE CHANGED 
+> It has choosen to train HighlightSum on a subset Recommandations sizes 
  
 | Subset size      | GPU time     | Quality   |
 | ---------------- | ------------ | --------- |
-| **1k** samples   | ~20–25 min   | OK        |
-| **2k** samples   | ~45 min      | GOOD      |
-| **5k** samples   | ~1.5–2 hours | VERY GOOD |
-| **Full dataset** | ~3–6 hours   | Best      |
+| **1k** samples   | ~ min   |        |
+| **2k** samples   | ~ min      |      |
+| **5k** samples   | ~ hours |  |
+| **Full dataset** | ~s   |       |
 
-LLaMA-1B is small, so even 2k samples already gives strong summarization  
+HighlightSum is small, so even 2k samples already gives strong summarization  
 
 
 ### Examples output train.py 
