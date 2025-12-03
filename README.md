@@ -541,14 +541,15 @@ The project manager opens the meeting by stating that they will address function
 
 ### Benchmark Results
 
-| model       | model_id                                       |   rouge1 |   rouge2 |   rougeL |       time | throughput | efficiency | composite_score |
-|-------------|------------------------------------------------|--------:|--------:|--------:|-----------:|----------:|----------:|----------------:|
-| BART-large  | facebook/bart-large-cnn                        | 28.105383|  9.183429| 21.062636|  101.631836|   1.967887|   0.207244|        1.230694 |
-| LLaMA-1B    | meta-llama/Llama-3.2-1B-Instruct               | 28.635874|  9.618125| 21.205387|  393.929495|   0.507705|   0.053830|        0.463230 |
-| LLaMA-3B    | meta-llama/Llama-3.2-3B-Instruct               | 23.771793|  8.222793| 17.306203|  748.223488|   0.267300|   0.023130|       -0.162342 |
-| Phi-3-Mini  | microsoft/Phi-3-mini-4k-instruct               | 20.550442|  7.028457| 14.306677|  987.636199|   0.202504|   0.014486|       -0.571619 |
-| T5-large    | t5-large                                       | 10.977282|  1.944009|  9.636944|  263.027842|   0.760376|   0.036638|       -0.959962 |
+| model       | model_id                                       |    rouge1 |    rouge2 |    rougeL |        time | throughput |  efficiency | composite_score |
+|-------------|------------------------------------------------|----------:|----------:|----------:|------------:|------------:|------------:|-----------------:|
+| BART-large  | facebook/bart-large-cnn                        |  28.106   |   9.183   |  21.063   |   101.632   |    1.968    |    0.207    |      1.231      |
+| LLaMA-1B    | meta-llama/Llama-3.2-1B-Instruct               |  28.636   |   9.618   |  21.205   |   393.929   |    0.508    |    0.054    |      0.463      |
+| LLaMA-3B    | meta-llama/Llama-3.2-3B-Instruct               |  23.772   |   8.223   |  17.306   |   748.223   |    0.267    |    0.023    |     -0.162      |
+| Phi-3-Mini  | microsoft/Phi-3-mini-4k-instruct               |  20.550   |   7.028   |  14.307   |   987.636   |    0.203    |    0.014    |     -0.572      |
+| T5-large    | t5-large                                       |  10.977   |   1.944   |   9.637   |   263.028   |    0.760    |    0.037    |     -0.960      |
 
+> _Notes_:  
 > _Notes_:  
 
 
