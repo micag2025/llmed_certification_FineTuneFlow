@@ -188,17 +188,31 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 └── .env_example.txt                         # Example environment file for API keys
 ```
 
+llmed_certification_FineTuneFlow/
+│
+├── train_bart_lora.py                  # LoRA fine-tuning
+├── baseline_eval.py                    # Baseline evaluation (pre-training)
+├── eval_bart_lora.py                   # Post-training evaluation
+├── inference_bart_lora.py              # Inference w/ LoRA or merged model
+├── merge_bart_lora.py                  # Merge LoRA → base model
+│
+├── metrics/                            # All metrics + prediction CSVs
+│   ├── baseline_predictions.csv
+│   ├── baseline_predictions_metrics.csv
+│   ├── validation_predictions.csv
+│   ├── validation_predictions_metrics.csv
+│
+├── ft_outputs/                         # Model outputs
+│   ├── bart_lora_highlightsum/         # LoRA adapter model
+│   ├── bart_merged_highlightsum/       # (optional) merged checkpoint
+│
+├── requirements.txt
+├── README.md                           # Full model card for HF Hub
+│
+└── utils/ (optional)
+    ├── dataset_utils.py
+    ├── generation_utils.py
 
-```text
-ft_outputs/
-├─ bart_lora/               <-- LoRA adapter weights only
-├─ bart_merged/             <-- merged weights (raw)
-└─ bart_merged_clean/       <-- final model for production ?
-metrics/
-├─ lora_eval.json
-├─ merged_eval.json
-└─ validation_predictions.csv
-```
 
 ### What the evaluation step provides
 
