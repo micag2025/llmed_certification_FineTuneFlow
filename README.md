@@ -188,6 +188,7 @@ To evaluate and improve a model’s step-by-step summarisation capability using 
 └── .env_example.txt                         # Example environment file for API keys
 ```
 
+```
 llmed_certification_FineTuneFlow/
 │
 ├── train_bart_lora.py                  # LoRA fine-tuning
@@ -212,7 +213,7 @@ llmed_certification_FineTuneFlow/
 └── utils/ (optional)
     ├── dataset_utils.py
     ├── generation_utils.py
-
+```
 
 ### What the evaluation step provides
 
