@@ -109,188 +109,299 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 └── README.md                          # This file (HF Model Card compatible)
 ├── Model_Card.md                      # Full model card for HF Hub
 ```
+---
 
+## Workflow Overview
 
- 
+**Stage 1 — Dataset Preparation**    
+- Load HighlightSum from HuggingFace  
+- Select subset (2,000 train / 200 validation)  
+- Inspect text length, sample quality  
+- No additional preprocessing required
 
+**Stage 2 — Baseline Evaluation (Before Training)**  
+Run:  
+```
+python baseline_eval.py
+```
 
+Outputs:
+- baseline_predictions.csv
+- ROUGE baseline
+- BERTScore baseline
+- BLEU baseline
+Used to verify fine-tuning improvement.
 
+**Stage 3 — Fine-Tuning with LoRA**  
+Run:  
+```
+python train_bart_lora.py
+```
+Training Features:  
+- LoRA (r=8, α=32, dropout=0.05)  
+- Effective batch size = 8 (4 × 2 accumulation)  
+- fp16 training on T4 GPU  
+- W&B tracking enabled  
 
+Output folder:
+```
+ft_outputs/bart_lora_highlightsum/
+```
+
+**Stage 4 — Evaluation of LoRA Model**  
+ROUGE-level scoring:  
+```
+python eval_bart_lora.py
+```
+Extended metrics (ROUGE + BERTScore + BLEU):  
+```
+python eval_metrics_bart_lora.py
+```
+Outputs:  
+```
+metrics/validation_predictions.csv
+metrics/validation_predictions_metrics.csv
+```
+
+**Stage 5 — Merge LoRA → Base BART**  
+```
+python merge_bart_lora.py
+```
+Produces:  
+```
+ft_outputs/bart_merged_highlightsum/
+```
+This is the **deployment-ready model**.  
+
+**Stage 6 — Deployment & Inference**  
+Inference script:  
+```
+python inference_bart_lora.py
+```
+Supports:  
+- LoRA adapter mode   
+- Fully merged model mode
 
 ---
 
-## Workflow & Stages for BART-LoRA Fine-Tuning  
+## Metrics Provided    
+Each evaluation includes:  
+| Metric                          | Purpose                                         |
+| ------------------------------- | ----------------------------------------------- |
+| **ROUGE-1 / ROUGE-2 / ROUGE-L** | Lexical overlap with human summaries            |
+| **BERTScore (F1)**              | Meaning-based semantic similarity               |
+| **BLEU**                        | N-gram precision similarity                                |
+| **Avg. summary length**         | Output consistency check                        |
+| **Full prediction CSV**         | For manual inspection                           |
+| **Failure case examples**       | Over-/under-summarization, hallucinations, etc. |
 
+>_Note_: validation_predictions.csv include | id | source_text | reference_summary | generated_summary | rougeL_score |
+
+---
+
+## Key Comparisons  
+| Comparison                                | Purpose                                    |    Question                          |
+| ----------------------------------------- | -------------------------------------------|--------------------------------------|
+| **Baseline BART vs LoRA-fine-tuned BART** | Measure fine-tuning impact                 | Is LoRA training effective?          |
+| **LoRA vs Merged model**                  | Check whether merge preserved weights      | Is merging lossless?                 |
+| **Merged model inference**                | Final deployment quality                   |  Is the final model production-ready?|
+
+> This follows the certification requirement: Fine-tune → evaluate → merge → cleanup → evaluate → deploy
+
+---  
+
+## Deployment Options    
+- Hugging Face Hub : Includes full model card + checkpoint upload script.
+
+---   
+
+## Batch inference deployment  
+for large-scale summarization workflows.
+
+--- 
+
+## Weights & Biases Integration
+All scripts support:  
+- training loss curves  
+- evaluation metrics  
+- full prediction tables  
+- sample predictions  
+- hyperparameter logging  
+
+--- 
+
+## Model Card (Hugging Face Summary)  > see also Model_Card.md   
+**Model**: bart-large-cnn fine-tuned with LoRA on HighlightSum  
+**Task**: Dialogue Summarization  
+**Training Samples**: 2,000  
+**Validation Samples**: 200  
+**Method**: LoRA (r=8, α=32)  
+**Metrics**: ROUGE, BERTScore, BLEU  
+**Intended Use**: Conversational summarization (multi-turn dialog)  
+**Limitations**: May miss fine-grained details, not domain-specialized  
+**License**: MIT (inherits from BART)  
+
+---
+
+## LLMED Fine-Tuning & Deployment Workflow  
 The complete and up-to-date pipeline / workflow (end-to-end) including training → evaluation → merging → deployment → export (production)
 
-```text  
-
-┌────────────────────────────────────────────────────┐
-│ 1. Inspection and Prepare Dataset  HighlightSum                               │
-│  ─ Raw documents                                    │
-│  ─ Highlights / summaries                           │
-│  → Format into HuggingFace dataset (train/val)      │
-└────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌────────────────────────────────────────────────────┐
-│ 2. Fine-Tune Base BART with LoRA (PEFT)             │
-│  python train_bart_lora.py                          │
-│  Output: ./ft_outputs/bart_lora_highlightsum                    │
-│   (LoRA adapter weights + training logs)            │(PEFT checkpoints + base model refs only)
-└────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌────────────────────────────────────────────────────┐
-│ 3. Evaluate LoRA Model (Validation)                 │
-│  python eval_bart_lora.py                           │
-│  Output: ./metrics/lora_eval.json ?                   │
-│    - ROUGE-1 / ROUGE-2 / ROUGE-L                    │
-│    - BERTScore, BLEU                                │
-│    - validation_predictions.csv                     │
-└────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌────────────────────────────────────────────────────┐
-│ 4. Merge LoRA into Base BART                        │
-│  python merge_bart_lora.py                               │
-│  Output: ./ft_outputs/bart_merged_highlighsum                   │
-└────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌────────────────────────────────────────────────────┐
-│ 5. Post-Merge Cleanup (Fix Config)    ???              │
-│  python post_merge_cleanup.py                       │
-│  Fixes:                                             │
-│   - forced_bos_token_id                             │
-│   - decoder_start_token_id                          │
-│   - early_stopping flag                             │
-│  Output: ./ft_outputs/bart_merged_clean             │
-└────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌────────────────────────────────────────────────────┐
-│ 6. Evaluate Final Merged Model      TO BE ENCLOSED                │
-│  python eval_bart_lora.py --model=merged_clean      │
-│  Output: ./metrics/merged_eval.json                 │
-│                                                      │
-│  🔽 Comparison (automatic in notebook)               │
-│    lora_eval.json       vs       merged_eval.json    │
-│    → Does merging preserve or improve ROUGE?         │
-└────────────────────────────────────────────────────┘
-                         │
-                         ▼
-┌────────────────────────────────────────────────────┐
-│ 7. Inference / Deployment                           │
-│  python test_inference.py                           │
-│  or deploy using:                                    │
-│   - FastAPI Endpoint   (?)                            │
-│   - Gradio Web UI      (?)                             │
-│   - Hugging Face Space                              │
-│                                                     │
-└────────────────────────────────────────────────────┘
-
-─────────────────────────────────────────────────────────────
-  6. POST-MERGE USAGE  (deployment stage)
-─────────────────────────────────────────────────────────────
-                   ./ft_outputs/bart_merged_clean
-                                │
-          ┌─────────────────────┼─────────────────────┐
-          ▼                     ▼                     ▼
-   inference.py          evaluate.py           Notebook-F (GGUF export)
-(Real use / API)   (ROUGE + BERTScore + BLEU     for llama.cpp /
-                       + charts dashboard)        LM Studio / Ollama
-─────────────────────────────────────────────────────────────
-  7. PRODUCTION
-─────────────────────────────────────────────────────────────
- Option A — Hugging Face pipeline
- Option B — FastAPI / Flask service
- Option C — GGUF quantized using llama.cpp/LM Studio
- Option D — Batch inference at scale
 ```
-
-
-
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 1. DATASET PREPARATION — HighlightSum                                       │
+│                                                                             │
+│   • Load raw dialogues + highlights                                         │
+│   • Tokenize (max_input=768, max_target=192)                                │
+│   • Create HuggingFace DatasetDict (train/val)                              │
+│                                                                             │
+│   Output: ./data/highlightsum_dataset (HF format)                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 2. MODEL BENCHMARKING (Notebook C)                                          │
+│                                                                             │
+│   • Compare: BART-large, T5-large, Phi-3-Mini, LLaMA-1B, LLaMA-3B           │
+│   • Compute: ROUGE-1/2/L · Throughput · Efficiency Score                    │
+│   • Produces: final_ranking.csv                                             │
+│                                                                             │
+│   Output Dir: ./outputs/benchmarks/notebook_C                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 3. AUTO FINE-TUNING PLAN (Notebook D)                                       │
+│                                                                             │
+│   • Reads: final_ranking.csv                                                │
+│   • Generates fine-tuning recommendations per model                          │
+│   • Exports:                                                                │
+│       – finetune_plan.md                                                    │
+│       – recommendations.json                                                │
+│       – train_qLoRA.py (template)                                           │
+│       – qLoRA_train.sh (Accelerate launcher)                                │
+│                                                                             │
+│   Output Dir: ./outputs/benchmarks/notebook_D                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 4. LoRA FINE-TUNING (Optimized for T4 GPU)                                  │
+│                                                                             │
+│   Command:                                                                  │
+│     python train_bart_lora.py                                               │
+│                                                                             │
+│   • QLoRA (rank=8)                                                          │
+│   • fp16 training for speed                                                 │
+│   • Gradient accumulation → effective batch=8                               │
+│   • W&B logging enabled                                                     │
+│                                                                             │
+│   Output: ./ft_outputs/bart_lora_highlightsum                               │
+│            (LoRA adapter weights, config, tokenizer, logs)                  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 5. EVALUATION (Pre-Merge)                                                   │
+│                                                                             │
+│   Command:                                                                  │
+│     python eval_bart_lora.py                                                │
+│                                                                             │
+│   Metrics:                                                                  │
+│     – ROUGE-1 / ROUGE-2 / ROUGE-L                                           │
+│     – BERTScore                                                             │
+│     – BLEU                                                                  │
+│   Files: validation_predictions.csv                                         │
+│                                                                             │
+│   Output Dir: ./metrics/lora_eval.json                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 6. MERGE LoRA → BASE MODEL                                                  │
+│                                                                             │
+│   Command:                                                                  │
+│     python merge_bart_lora.py                                               │
+│                                                                             │
+│   • Load base model in fp16                                                 │
+│   • Apply LoRA adapters                                                     │
+│   • Save full merged checkpoint                                             │
+│                                                                             │
+│   Output: ./ft_outputs/bart_merged_highlightsum                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 7. POST-MERGE CLEANUP   (TO BE EXCLUDED?)                                                    │
+│                                                                             │
+│   Command:                                                                  │
+│     python post_merge_cleanup.py                                            │
+│                                                                             │
+│   Fixes:                                                                    │
+│     – forced_bos_token_id                                                   │
+│     – decoder_start_token_id                                                │
+│     – early_stopping flag                                                   │
+│                                                                             │
+│   Output: ./ft_outputs/bart_merged_clean                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 8. FINAL EVALUATION (Merged Model)                                          │
+│                                                                             │
+│   Command:                                                                  │
+│     python eval_bart_lora.py --model=merged_clean                           │
+│                                                                             │
+│   Output: ./metrics/merged_eval.json                                        │
+│                                                                             │
+│   Comparison:                                                               │
+│     lora_eval.json   vs   merged_eval.json                                  │
+│     → verifies merging preserves ROUGE, BERTScore, BLEU                     │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ 9. DEPLOYMENT (Inference + Production)                                      │
+│                                                                             │
+│   Command: python inference_bart_lora.py                                    │
+│                                                                             │
+│   Deployment options:                                                       │
+│     – FastAPI inference server                                              │
+│     – Gradio Web UI                                                         │
+│     – Hugging Face Space  (TO BE SELECTED THIS                              │
+│                                                                             │                                                                            │
+│   Output: production-ready model + API                                      │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 ---
 
-## Features / What’s Included
+## Getting Started  
+This section shows how to install dependencies, configure authentication, and run the full pipeline.  
 
-- Automated benchmarking and composite ranking of open LLMs
-- QLoRA-based fine-tuning pipeline 
-- Inference & evaluation scripts
-- Artifacts for deployment (merged weights, GGUF exports)
-- Experiment tracking (Weights & Biases)
-- Example Colab/Notebook integration
-
----
-
-
-
-
-### What the evaluation step provides
-
-Each evaluation run (`eval_bart_lora.py`) computes:
-| Metric                      | Purpose                                   |
-| --------------------------- | ----------------------------------------- |
-| ROUGE-1 / ROUGE-2 / ROUGE-L | Measures overlap with reference summaries |
-| BERTScore                   | Semantic similarity                       |
-| BLEU                        | Precision-based n-gram similarity         |
-| Avg. Length                 | Output stability check                    |
-| Failure Buckets             | Templates for common failure cases        |
-
-Plus the CSV:
-validation_predictions.csv
-| id | source_text | reference_summary | generated_summary | rougeL_score |
-
-
-###  Final comparison across model versions
-| Model version                    | When to compute               |
-| -------------------------------- | ----------------------------- |
-|  Base BART (optional)           | Before fine-tuning (baseline) |
-|  BART + LoRA (during training) | After fine-tuning             |
-|  BART merged_clean             | Final deployment model        |
-
-This allows to answer three key questions:
-| Question                             | Which comparison?                   |
-| ------------------------------------ | ----------------------------------- |
-| Is LoRA training effective?          | Base vs. BART-LoRA                  |
-| Is merging lossless?                 | BART-LoRA vs. merged_clean          |
-| Is the final model production-ready? | merged_clean eval score + inference |
-
->_Note_: LoRA fine-tuning → evaluate → merge LoRA into base → cleanup → evaluate again → deploy.
-
----
-
-## Getting Started
-
-### Prerequisites
-
+### Prerequisites  
+_Required_:
 - Python 3.10+    
 - [HuggingFace Account & API Key](https://huggingface.co/)
+- GPU environment (Colab T4, L4, A100, or local RTX)
+    
+_Recommended_:   
 - [Weights & Biases Account](https://wandb.ai/site) (for experiment tracking—optional, but recommended)
 
-Set relevant API keys in your environment:
-
+_Set relevant API keys in your environment_:  
 ```bash
-export HF_API_KEY=your_hf_key
+export HF_API_KEY=your_huggingface_key
 export WANDB_API_KEY=your_wandb_key
 ```
-### Hugging Face & Weights & Biases Authentication in Notebooks
-
-If running in a Colab or Jupyter notebook, authenticate your session with Hugging Face Hub and Weights & Biases as follows:
-
+### Authentication for Notebooks (Colab/Jupyter)
+**Hugging Face Login**
 ```python
 from huggingface_hub import notebook_login
 notebook_login()
 ```
-
-Install Weights & Biases (if not already installed) and log in:
-
-```bash
+**Weights & Biases Login**  
+```
 pip install wandb
 wandb login
 ```
----
 
 ### Installation
 
@@ -303,246 +414,171 @@ pip install -r requirements.txt
 
 ## Running the Pipeline
 
-**Dataset Selection and Preparation**  
-- Dataset: Highlightsum dataset on Hugging Face  
-- Sample Size: 2,000 training samples, 200 validation samples.  
-- Preprocessing:  
-  - Tokenization with BART tokenizer.    
-  - Input truncation (max length 768), target truncation (max length 192).    
-  - Splitting into training and validation sets.  
+**1 Dataset Selection and Preparation**  
+- Dataset: Highlightsum dataset 
+- Sample used:
+  2,000 for training  
+  200 for validation  
+- Preprocessing Includes:  
+  - Tokenization (BART tokenizer)
+  - Input truncation: 768 tokens
+  - Target truncation: 192 tokens
+  - Padding to longest sequence
+  - Text formatting for summarization tasks
+      
+This project focuses on model evaluation + fine-tuning – not data cleaning.  
 
-Here the focus is on _flow of data into fine-tuning pipeline_ rather than dataset collection or cleaning.
+**2 Model Benchmarking (Notebook C)**  
+Notebook `notebook_C.ipynb` evaluates: 
+- BART-large  
+- T5-large  
+- Phi-3-Mini  
+- LLaMA-1B  
+- LLaMA-3B  
+**Metrics computed**  
+- ROUGE-1 / ROUGE-2 / ROUGE-L  
+- Throughput (tokens/s)  
+- Latency per sample  
+- Composite efficiency score  
+**Tokenizer safety rules**    
+- Set pad_token = eos_token when needed  
+- Truncate to max_length = 768  
+- Use padding="longest" for seq2seq  
+- Use padding="max_length" for causal models  
+- Batch inputs to reduce GPU RAM usage  
 
-**Model Benchmarking**
-
-Run the benchmarking notebook (`notebook_C`) to compare multiple candidate models using accuracy and efficiency metrics. The evaluation `notebook C`, compare five candidate models ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)) on 200 validation samples of Highlightsum dataset using:    
-- ROUGE-1 / ROUGE-2 / ROUGE-L scores    
-- Execution time per sample    
-- Tokens-per-second throughput    
-- An overall efficiency score (accuracy vs speed)
-
-Basic preprocessing has been performed, including `tokenization of dialogues` with appropriate padding and truncation, `batch preparation` for seq2seq models, and `selection of a subset from the HighlightSUM train split` for benchmarking. In details, the basic preprocessing performed is based on:  
-- **Tokenization**:    
-  - All text inputs (`dialogue`) are tokenized using the model-specific tokenizer.  
-  - For causal models, if `pad_token` was missing, it was set to `eos_token` to allow batching/padding.  
-  - Seq2seq and causal models both use truncation and padding (`max_length=768`) to ensure consistent tensor shapes.  
-- **Dataset splitting**:  
-  - Selected a subset of samples (`N_SAMPLES`) from the HighlightSUM train split for benchmarking.  
-- **Batching (seq2seq models)**:
- - Inputs are batched to reduce memory usage on GPU, which is part of preprocessing before model inference.
-
-`Notebook C` allows:  
-- Benchmarks large models safely on Colab.    
-- Performs basic preprocessing (tokenization, padding, truncation, batching).  
-- Handles tokenizer safety (pad_token set if missing).  
-- Includes train/validation/test split handling.  
-- Clearly highlights all places where tokenizer safety or padding/truncation is applied.
-
-_Key Preprocessing & Tokenizer Safety Highlights_  
-1 **Tokenizer safety**:
-```bash
-if tokenizer.pad_token is None:
-    tokenizer.pad_token = tokenizer.eos_token
+**Outputs**
 ```
-- Applied for **all models**, including causal LMs.
-2 **Batching & padding**:  
-- Seq2seq models use `padding="longest"` and `max_length=768`.  
-- Causal models use `padding="max_length"` and `max_length=768`.    
-3 **Truncation**:  
-- Ensures sequences don’t exceed model’s max input length.  
-4 **Dataset split**:  
-- Train, validation, and test subsets selected (N_SAMPLES for test subset).  
-
-`Notebook_C` generates `final_ranking.csv`that reflects the real performance trade-offs (ROUGE + throughput + efficiency) on HighlightSUM dataset.  
-
- **Auto-fine-tuning Recommendation & Plan** 
-
-`Notebook D` (Auto-fine-tuning Recommendation & Plan) reads the final leaderboard from `model_benchmarks/notebook_C/final_ranking.csv` (inputs) and generates a comprehensive fine-tuning strategy available in the following outputs (`model_benchmarks/notebook_D/`):     
-- `finetune_plan.md` — Human-readable fine-tuning plan with rationale and hyperparameters
-- `recommendations.json` -	Structured recommendations per model (method + hyperparameters)  
-- `train_qLoRA.py` — Training template using PEFT + QLoRA  (TO BE RENAMED?)
-- `qLoRA_train.sh` — Bash wrapper to execute QLoRA training with Hugging Face Accelerate  (TO BE RENAMED?)
-
-For each model, `Notebook D` produces:  
-- Ranked recommendation — which model(s) to fine-tune
-- Fine-tuning method — QLoRA / LoRA / full fine-tuning (based on model size & available GPU)
-- Hyperparameters — recommended training settings
-- Compute estimate — rough time/resource heuristic (informational only, not billing-accurate)  
-
-
-Next steps:  
-- customize the `train_qLoRA.py` to the chosen model (map tokenizers/prompt style precisely). 
-- add validation loop + ROUGE evaluation inside training to checkpoint best model.
-- produce a small sample dataset JSONL generator from HighlightSumthat matches the expected supervised format.
-- estimate training time more accurately based on the GPU type (T4 / L4 / A100) and hours you can run.  
-
-
- `Customize train_qLoRA.py`
-`Notebook D` provides a generic training script, but it needs to be adapted so you can:
-1. Set your model
-2. Set your dataset / Notebook D may include a placeholder dataset.
-3. Set your training hyperparameters:    
-    - batch size  
-  	- gradient accumulation  
-    - QLoRA R value  
-    - learning rate  
-    - warmup  
-    - max steps / epochs  
-    - max sequence length  
-4. Set output directory 
-
-For this project:  
-> Use: Optimized BART-LoRA Training for T4 GPU  
-       Uses effective batch size 8 via gradient accumulation  
-       Includes padding, length updates, and stable T4 config    
-
-QLoRA training script has been also  modifed for speed while keeping most of the QLoRA benefits and model quality.  Key changes:
-  - Shorter context: MAX_LENGTH = 768 — biggest speed win.  
-  - Smaller LoRA rank: r = 8 (was 16) — less computation, still effective.  
-  - Smarter batching: smaller per-device batch + larger gradient_accumulation_steps to keep effective batch size.
-  - Cap total steps: use max_steps to avoid unnecessary epochs (you can tune).
-  - Fewer saves/eval/logging: reduce IO overhead.
-  -  Keep gradient checkpointing and fp16 to reduce memory & speed tradeoff.  ??
-  -  Faster preprocessing: use padding="longest" then collate, avoid padding="max_length" in map to reduce token workload.
-  -  Minor other tweaks (num_workers for tokenizers, cudnn benchmark, use_cache=False).
-
-The fully updated `train_bart_lora.py` has been also equipped with Weights & Biases (W&B)  
-
-**Fine-tuning**
-
-After having customized `train_qLoRA.py` as needed, the main training script has been called `train_bart_lora.py`, and then this has been used to launch training (QLoRA Training):
-
-```bash
-!python train_bart_lora.py
+model_benchmarks/notebook_C/final_ranking.csv
+model_benchmarks/notebook_C/final_ranking.json
+model_benchmarks/notebook_C/final_ranking.html
 ```
 
-Training output is saved to:   
-`models (ft_outputs)/bart_lora_highlightsum/`
+**3 Auto Fine-Tuning Recommendation (Notebook D)**    
+Notebook `notebook_D.ipynb` generates:    
+- _finetune_plan.md_ — human-readable training plan
+- _recommendations.json_ — hyperparameter recommendations
+- _train_qLoRA.py_ — template script
+- _qLoRA_train.sh_ — Accelerate launcher
 
-This script:  (TO BE VERIFIED)
-- Loads base model in FP16 (not 4-bit)  
+You are expected to:  
+- Set model name  
+- Set dataset  
+- Tune hyperparameters  
+- Choose LoRA or QLoRA  
+- Set output path  
+- Enable W&B logging  
+This project selects **BART-large** for fine-tuning.
+
+**4 Fine-Tuning (`train_bart_lora.py`)**
+
+Run LoRA fine-tuning:
+```
+python train_bart_lora.py
+```
+**Features**:
+- Optimized for T4 GPUs  
+- Effective batch size = 8  
+- LoRA r=8, α=32  
+- fp16 training  
+- use_cache=False for stability  
+- W&B logging built-in
+
+**Output**:  
+```
+ft_outputs/bart_lora_highlightsum/
+```
+
+**5 Evaluation (Before Merge)**  
+Basic evaluation:
+
+```
+python eval_bart_lora.py
+```
+Full Metrics:  
+```
+python eval_metrics_bart_lora.py
+```
+Outputs:
+```
+metrics/validation_predictions.csv
+metrics/validation_predictions_metrics.csv
+```
+Metrics include:
+ROUGE-1 / ROUGE-2 / ROUGE-L
+BERTScore (semantic similarity)
+BLEU score
+Per-sample predictions
+
+**6 Merge LoRA → Base Model**
+
+Merge adapters:
+```
+python merge_bart_lora.py
+```
+
+What the script does:  
+- Loads base model in FP16  
 - Loads LoRA adapters  
-- Applies the LoRA weights  
-- Merges them into the model  
-- Saves a standalone checkpoint  
+- Applies LoRA weights  
+- Writes a standalone merged checkpoint  
 
->_Note_ See Correct Flow Summary > training > evaluation> merge>inference 
-
-**Merge and Evaluate** TO BE CHANGED 
-The fully corrected, safe, and LLaMA-3.2 compatible merge_lora.py script has been used for merging:  
-- the 4-bit base model, and
-- the LoRA adapters
-- into a single FP16 full model that you can use normally without PEFT.
-
-To sum up, the  `merge_lora.py` script:  
-- Loads base model in FP16 (not 4-bit)  
-- Loads LoRA adapters  
-- Applies the LoRA weights  
-- Merges them into the model  
-- Saves a standalone checkpoints
-
-The LLaMA-3.2 compatible evaluation script (ROUGE on SAMSum validation set), `evaluate.py`:
-- Loads either LoRA model or merged model  
-- Computes ROUGE-1, ROUGE-2, ROUGE-L on the SAMSum validation set  
-- Uses your chat template for inference  
-- Runs on Colab GPU  
-- Is optimized for speed (batch inference, no sampling, greedy decoding)      
-
-
-```bash
-!python merge_lora.py
-!python evaluate.py
+Output:  
+```
+ft_outputs/bart_merged_highlightsum/
 ```
 
-This produces a new folder:  
-```bash
-llama1b-samsum-merged/
-    config.json
-    generation_config.json
-    model.safetensors
-    tokenizer.json
-    tokenizer.model
-...
-
-**Inference**
-
-```bash
-!python inference.py
+**7 Final Evaluation (Merged Model)**  
 ```
-
-Example:  
-Input dialogue:
-John: Are you joining the call?
-Sarah: Yes, give me 2 minutes.
-John: Sure, I'll wait.
-
-Generated summary:
-Sarah will join the call shortly.
-
-Evaluation (ROUGE)  
-```bash
-python src/evaluate.py
+python eval_bart_lora.py --model=merged
 ```
-Outputs go to:
-`outputs/evaluation_results/`  
-Including:
-`metrics.json`  
-`rouge1.png`, `rouge2.png`, `rougeL.png`  
-
----
+Or full metrics:  
+```
+python eval_metrics_bart_lora.py
+```
+Used to confirm that merging preserves LoRA improvements.  
 
 
-Full Fine-Tuning Workflow 
-for the BART-LoRA: training → inference → evaluation → metrics → merge (optional)
-**STEP 1 — Train LoRA Model**
+**8 Inference & Deployment**  
+Run inference locally:  
+```
+python inference_bart_lora.py  
+```
+Deployment options supported:
+- Hugging Face Hub
+- Gradio Web UI
+- Fast API server
+- GGUF export (via Notebook F)
+- LM Studio / Ollama
 
-Runs:
-train_bart_lora.py
+## Evaluation Overview
 
-✔ Produces:
-/content/.../ft_outputs/bart_lora_highlightsum
+Each evaluation includes:  
+| Metric          | Purpose                        |
+| --------------- | ------------------------------ |
+| ROUGE-1/2/L     | Overlap with reference summary |
+| BLEU            | n-gram precision               |
+| BERTScore F1    | Semantic similarity            |
+| Avg Length      | Output stability               |
+| Failure Screens | Identify weak spots            |
 
-**STEP 2 — Evaluate on Validation Split (ROUGE only)**
-
-Runs:
-eval_bart_lora.py
-
-✔ Produces basic evaluation CSV:
+**Files produced:**  
+```
 validation_predictions.csv
-(with columns: dialogue, human_summary, model_summary, rouge scores)
-
-⚠️ This CSV is required for the Metrics step.
-
-**STEP 3 — Full Metrics (ROUGE + BERTScore + BLEU)**
-
-Runs:
-eval_metrics_bart_lora
-/metrics/validation_predictions.csv
-
-✔ Produces enriched CSV:
 validation_predictions_metrics.csv
-(contains rouge1, rouge2, rougeL, bert_f1, BLEU)
+```
 
-**STEP 4 — Optional: Merge LoRA → Full Model**
+**Model Comparison**
+You evaluate:
+- Base BART (optional baseline)  
+- LoRA-adapted BART  
+- Merged FP16 BART  
 
-Runs:
-merge_bart_lora.py
+This verifies:
+- Did LoRA training improve performance?
+- Does merging preserve performance?
+- Is the model ready for deployment?
 
-✔ Produces merged full model (no adapters):
-bart_merged_highlightsum/
-
-Only needed if:  
-- you want to deploy without LoRA  
-- or run inference outside PEFT context  
-
-**STEP 5 — Inference Script (for new unseen data)**
-
-Runs:
-inference_bart_lora.py (the updated version)
-
-✔ Can load either:
-LoRA model
-OR merged model
 
 ## Usage Examples  
 
@@ -552,7 +588,7 @@ OR merged model
  📊 Dataset Overview:
   Train splits: 27,401 samples
   Val splits: 1,360 samples
-  Test splits: 2,347 samples
+  Test splits: 2,347 samples`
 
 🔑 Keys: ['id', 'dialogue', 'summary']
 
@@ -874,6 +910,20 @@ Example ROUGE scores for LLaMA-1B fine-tuned on 1k SAMSum samples:
 | LLaMA-3-8B QLoRA | 0.40+ | 0.20+  | 0.33+   |
 
 _For 1B parameter models and limited data, this project significantly improves summarization performance while keeping memory and compute requirements low._
+
+---
+
+## Features / What’s Included
+
+- Automated benchmarking and composite ranking of open LLMs
+- QLoRA-based fine-tuning pipeline 
+- Inference & evaluation scripts
+- Artifacts for deployment (merged weights, GGUF exports)
+- Experiment tracking (Weights & Biases)
+- Example Colab/Notebook integration
+
+---
+
 
 ---
 
