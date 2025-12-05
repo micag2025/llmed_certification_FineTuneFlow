@@ -770,11 +770,11 @@ All W&B integration is handled in the training script [`run_llama_qlora.py`](run
 
 #### Example Visualizations
 
-![Training Loss Curve](Training_Loss_Curves.jpeg)
+![Training Loss Curve](graphs_W&B/Training_Loss_Curves.jpeg)
 
-![Evaluation Metrics](evaluation_metrics.jpeg)   
+![Evaluation Metrics](graphs_W&B/evaluation_metrics.jpeg)   
 
-![GPU Utilization](GPU_utilisation.jpeg)   
+![GPU Utilization](graphs_W&B/GPU_utilisation.jpeg)   
 
 > To access interactive dashboards and full experiment details, [visit our Weights & Biases project](https://wandb.ai/agostinimichelait-ready-tensor/llama-qlora-samsum).
 
