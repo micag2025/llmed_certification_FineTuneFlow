@@ -1,12 +1,55 @@
-# LLM Engineering and Deployment (LLMED) Certification:Capstone Project: LLM Fine-Tuning & Optimization for Dialogue Summarization (HighlightSum)
+# LLM Engineering & Deployment (LLMED) Certification – Capstone Project : Fine-Tuning & Optimization of BART for Dialogue Summarization (HighlightSum)    
 
-This repository is part of capstone project for the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) and it is linked to the publication:**LLMED Certification:Capstone Project:LLM Fine-Tuning & Optimization for Dialogue Summarization (HighlightSum)** available on [Ready Tensor](https://www.readytensor.ai). This project builds a complete evaluation, selection, and fine-tuning pipeline for small-to-medium open-source language models. The objective is to identify the most efficient model for dialogue summarization, then fine-tune it using QLoRA and optimize it for real-world deployment. This was achieved using a subset of the HighlightSum dataset. This capstone project focuses on fine-tuning and benchmarking large language models for efficient, high-quality conversational summarization.
+This repository contains the full implementation for to the publication **LLMED Certification:Capstone Project:LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
+
+The objective is to **select**, **fine-tune**, **evaluate**, and **deploy** an efficient open-source model for **dialogue summarization**, using a subset of the 
+[HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum). The project includes:  
+- model benchmarking and selection  
+- LoRA/QLoRA fine-tuning  
+- evaluation (ROUGE, BERTScore, BLEU)  
+- merging 
+- inference and deployment  
+- Hugging Face publishing
+- reproducible scripts & W&B experiment tracking
 
 ---
 
-## Project Overview (Description)
+## Project Overview   
 
-This project develops a scalable, efficient workflow for selecting, fine-tuning, and evaluating open-source LLMs (e.g. BART, T5, LLaMA-1B, LLaMA-3B, Phi-3-Mini) for the task of dialogue summarization, using a subset of the benchmark [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum) as a test dataset. The codebase automates model selection via benchmarking, applies QLoRA for parameter-efficient fine-tuning, and outputs deployable artifacts.
+This project builds a complete, reproducible pipeline for fine-tuning open LLMs for conversational summarization:
+
+- **Model benchmarking & selection**  
+Comparison of five candidate models ( [BART-large](https://huggingface.co/facebook/bart-large-cnn), [T5-large](https://huggingface.co/google/flan-t5-large), [Phi-3-Mini](https://huggingface.co/microsoft/Phi-3-mini-4k-instruct), [LLaMA-1B](https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct), and [LLaMA-3B](https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct)).  
+Evaluated on speed + efficiency + (memory?) + ROUGE to determine the best fine-tuning candidate.  
+
+- **LoRA / QLoRA Fine-Tuning**
+Efficient parameter-efficient training (PEFT) with LoRA adapters.  
+Training uses **2,000 training samples + 200 validation samples** from HighlightSum.
+
+- **Full Evaluation Pipeline**  
+ROUGE-1 / ROUGE-2 / ROUGE-L  
+BERTScore (semantic similarity)  
+BLEU  (?)  
+Failure category analysis  
+Prediction exports (CSV + metrics)  
+
+- **Merging + Final Model**  
+Merge LoRA adapters into base BART → produce a **single deployable checkpoint**.
+
+- **Deployment**    
+Inference script  
+GGUF export (llama.cpp / LM Studio)  ?
+Optional FastAPI / Gradio endpoint  ?
+
+- **Experiment Tracking**  
+All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.ai/site).  
+
+---
+
+
+
+
+
 
 ---
 
@@ -99,130 +142,8 @@ The complete and up-to-date pipeline / workflow (end-to-end) including training 
  Option C — GGUF quantized using llama.cpp/LM Studio
  Option D — Batch inference at scale
 ```
-```
-<svg width="1080" height="2100" viewBox="0 0 1080 2100" xmlns="http://www.w3.org/2000/svg">
-  <style>
-    .box { fill:#fdfdfd; stroke:#222; stroke-width:2; rx:12; ry:12; }
-    .title { font: bold 26px sans-serif; }
-    .text { font: 20px sans-serif; }
-    .arrow { stroke:#222; stroke-width:2; marker-end:url(#arrowhead); }
-  </style>
-
-  <defs>
-    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
-      <polygon points="0 0, 6 3, 0 6" fill="#222" />
-    </marker>
-  </defs>
-
-  <!-- Title -->
-  <text x="540" y="60" text-anchor="middle" class="title">LLMED Fine-Tuning & Deployment Workflow</text>
-
-  <!-- Step 1: Dataset -->
-  <rect x="200" y="100" width="680" height="150" class="box" />
-  <text x="540" y="160" text-anchor="middle" class="title">1. Dataset Preparation</text>
-  <text x="540" y="195" text-anchor="middle" class="text">HighlightSum (2000 train / 200 val)</text>
-  <text x="540" y="225" text-anchor="middle" class="text">Tokenization · Truncation 768 / 192</text>
-
-  <!-- Arrow 1 -->
-  <line x1="540" y1="250" x2="540" y2="310" class="arrow" />
-
-  <!-- Step 2: Benchmarking -->
-  <rect x="200" y="310" width="680" height="180" class="box" />
-  <text x="540" y="365" text-anchor="middle" class="title">2. Model Benchmarking (Notebook C)</text>
-  <text x="540" y="400" text-anchor="middle" class="text">BART · T5 · Phi-3 · LLaMA-1B · LLaMA-3B</text>
-  <text x="540" y="435" text-anchor="middle" class="text">ROUGE · Throughput · Efficiency Score</text>
-  <text x="540" y="465" text-anchor="middle" class="text">Output: final_ranking.csv</text>
-
-  <!-- Arrow 2 -->
-  <line x1="540" y1="490" x2="540" y2="560" class="arrow" />
-
-  <!-- Step 3: Auto Plan -->
-  <rect x="200" y="560" width="680" height="190" class="box" />
-  <text x="540" y="615" text-anchor="middle" class="title">3. Auto Fine-Tuning Plan (Notebook D)</text>
-  <text x="540" y="655" text-anchor="middle" class="text">Reads final_ranking.csv</text>
-  <text x="540" y="690" text-anchor="middle" class="text">Produces: finetune_plan.md · recommendations.json</text>
-  <text x="540" y="725" text-anchor="middle" class="text">Generates: train_qLoRA.py · qLoRA_train.sh</text>
-
-  <!-- Arrow 3 -->
-  <line x1="540" y1="750" x2="540" y2="820" class="arrow" />
-
-  <!-- Step 4: Training -->
-  <rect x="200" y="820" width="680" height="180" class="box" />
-  <text x="540" y="875" text-anchor="middle" class="title">4. LoRA Fine-Tuning</text>
-  <text x="540" y="910" text-anchor="middle" class="text">train_bart_lora.py</text>
-  <text x="540" y="945" text-anchor="middle" class="text">Optimized for T4 · LoRA r=8 · fp16</text>
-  <text x="540" y="975" text-anchor="middle" class="text">Output: bart_lora_highlightsum</text>
-
-  <!-- Arrow 4 -->
-  <line x1="540" y1="1000" x2="540" y2="1070" class="arrow" />
-
-  <!-- Step 5: Evaluation -->
-  <rect x="200" y="1070" width="680" height="180" class="box" />
-  <text x="540" y="1125" text-anchor="middle" class="title">5. Evaluation (Pre-Merge)</text>
-  <text x="540" y="1160" text-anchor="middle" class="text">eval_bart_lora.py</text>
-  <text x="540" y="1195" text-anchor="middle" class="text">ROUGE · BERTScore · BLEU</text>
-  <text x="540" y="1225" text-anchor="middle" class="text">Output: validation_predictions.csv</text>
-
-  <!-- Arrow 5 -->
-  <line x1="540" y1="1250" x2="540" y2="1320" class="arrow" />
-
-  <!-- Step 6: Merge -->
-  <rect x="200" y="1320" width="680" height="180" class="box" />
-  <text x="540" y="1375" text-anchor="middle" class="title">6. Merge LoRA → Base Model</text>
-  <text x="540" y="1410" text-anchor="middle" class="text">merge_bart_lora.py</text>
-  <text x="540" y="1445" text-anchor="middle" class="text">Creates FP16 standalone model</text>
-  <text x="540" y="1475" text-anchor="middle" class="text">Output: bart_merged_highlightsum</text>
-
-  <!-- Arrow 6 -->
-  <line x1="540" y1="1500" x2="540" y2="1570" class="arrow" />
-
-  <!-- Step 7: Post-Merge Evaluation -->
-  <rect x="200" y="1570" width="680" height="170" class="box" />
-  <text x="540" y="1620" text-anchor="middle" class="title">7. Final Evaluation</text>
-  <text x="540" y="1655" text-anchor="middle" class="text">eval_bart_lora.py --model=merged</text>
-  <text x="540" y="1690" text-anchor="middle" class="text">Compare LoRA vs Merged</text>
-
-  <!-- Arrow 7 -->
-  <line x1="540" y1="1720" x2="540" y2="1790" class="arrow" />
-
-  <!-- Step 8: Deployment -->
-  <rect x="200" y="1790" width="680" height="190" class="box" />
-  <text x="540" y="1845" text-anchor="middle" class="title">8. Deployment</text>
-  <text x="540" y="1880" text-anchor="middle" class="text">Inference scripts · Notebook F</text>
-  <text x="540" y="1915" text-anchor="middle" class="text">FastAPI · Gradio · HF Hub · GGUF export</text>
-  <text x="540" y="1950" text-anchor="middle" class="text">Model ready for production</text>
-</svg>
-```
 
 
-
-
-
-
-
-
-
-
-
-
-To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
-  
-1. **Benchmarking & Model Selection**
-   - Multiple models are compared (BART, T5, LLaMA, etc.) on ROUGE, speed, and efficiency.
-   - Visual ranking and automatic recommendation of the best model to fine-tune.
-
-2. **Fine-Tuning (QLoRA)**
-   - Selected model is fine-tuned using QLoRA for memory efficiency (4-bit quantization).
-   - Produces LoRA adapter weights.
-
-3. **Evaluation**
-   - Fine-tuned model is evaluated using ROUGE and other metrics on HighlightSum validation set.
-   - Outputs include plots and summary tables.
-
-4. **Deployment Prep**
-   - Merge LoRA adapters with base model.
-   - Convert to GGUF for fast CPU inference (llama.cpp compatibility).
-   - Tracks all experiments with Weights & Biases.
 
 ---
 
