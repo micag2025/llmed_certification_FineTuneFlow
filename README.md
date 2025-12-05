@@ -99,6 +99,111 @@ The complete and up-to-date pipeline / workflow (end-to-end) including training 
  Option C — GGUF quantized using llama.cpp/LM Studio
  Option D — Batch inference at scale
 ```
+```
+<svg width="1080" height="2100" viewBox="0 0 1080 2100" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .box { fill:#fdfdfd; stroke:#222; stroke-width:2; rx:12; ry:12; }
+    .title { font: bold 26px sans-serif; }
+    .text { font: 20px sans-serif; }
+    .arrow { stroke:#222; stroke-width:2; marker-end:url(#arrowhead); }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#222" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="540" y="60" text-anchor="middle" class="title">LLMED Fine-Tuning & Deployment Workflow</text>
+
+  <!-- Step 1: Dataset -->
+  <rect x="200" y="100" width="680" height="150" class="box" />
+  <text x="540" y="160" text-anchor="middle" class="title">1. Dataset Preparation</text>
+  <text x="540" y="195" text-anchor="middle" class="text">HighlightSum (2000 train / 200 val)</text>
+  <text x="540" y="225" text-anchor="middle" class="text">Tokenization · Truncation 768 / 192</text>
+
+  <!-- Arrow 1 -->
+  <line x1="540" y1="250" x2="540" y2="310" class="arrow" />
+
+  <!-- Step 2: Benchmarking -->
+  <rect x="200" y="310" width="680" height="180" class="box" />
+  <text x="540" y="365" text-anchor="middle" class="title">2. Model Benchmarking (Notebook C)</text>
+  <text x="540" y="400" text-anchor="middle" class="text">BART · T5 · Phi-3 · LLaMA-1B · LLaMA-3B</text>
+  <text x="540" y="435" text-anchor="middle" class="text">ROUGE · Throughput · Efficiency Score</text>
+  <text x="540" y="465" text-anchor="middle" class="text">Output: final_ranking.csv</text>
+
+  <!-- Arrow 2 -->
+  <line x1="540" y1="490" x2="540" y2="560" class="arrow" />
+
+  <!-- Step 3: Auto Plan -->
+  <rect x="200" y="560" width="680" height="190" class="box" />
+  <text x="540" y="615" text-anchor="middle" class="title">3. Auto Fine-Tuning Plan (Notebook D)</text>
+  <text x="540" y="655" text-anchor="middle" class="text">Reads final_ranking.csv</text>
+  <text x="540" y="690" text-anchor="middle" class="text">Produces: finetune_plan.md · recommendations.json</text>
+  <text x="540" y="725" text-anchor="middle" class="text">Generates: train_qLoRA.py · qLoRA_train.sh</text>
+
+  <!-- Arrow 3 -->
+  <line x1="540" y1="750" x2="540" y2="820" class="arrow" />
+
+  <!-- Step 4: Training -->
+  <rect x="200" y="820" width="680" height="180" class="box" />
+  <text x="540" y="875" text-anchor="middle" class="title">4. LoRA Fine-Tuning</text>
+  <text x="540" y="910" text-anchor="middle" class="text">train_bart_lora.py</text>
+  <text x="540" y="945" text-anchor="middle" class="text">Optimized for T4 · LoRA r=8 · fp16</text>
+  <text x="540" y="975" text-anchor="middle" class="text">Output: bart_lora_highlightsum</text>
+
+  <!-- Arrow 4 -->
+  <line x1="540" y1="1000" x2="540" y2="1070" class="arrow" />
+
+  <!-- Step 5: Evaluation -->
+  <rect x="200" y="1070" width="680" height="180" class="box" />
+  <text x="540" y="1125" text-anchor="middle" class="title">5. Evaluation (Pre-Merge)</text>
+  <text x="540" y="1160" text-anchor="middle" class="text">eval_bart_lora.py</text>
+  <text x="540" y="1195" text-anchor="middle" class="text">ROUGE · BERTScore · BLEU</text>
+  <text x="540" y="1225" text-anchor="middle" class="text">Output: validation_predictions.csv</text>
+
+  <!-- Arrow 5 -->
+  <line x1="540" y1="1250" x2="540" y2="1320" class="arrow" />
+
+  <!-- Step 6: Merge -->
+  <rect x="200" y="1320" width="680" height="180" class="box" />
+  <text x="540" y="1375" text-anchor="middle" class="title">6. Merge LoRA → Base Model</text>
+  <text x="540" y="1410" text-anchor="middle" class="text">merge_bart_lora.py</text>
+  <text x="540" y="1445" text-anchor="middle" class="text">Creates FP16 standalone model</text>
+  <text x="540" y="1475" text-anchor="middle" class="text">Output: bart_merged_highlightsum</text>
+
+  <!-- Arrow 6 -->
+  <line x1="540" y1="1500" x2="540" y2="1570" class="arrow" />
+
+  <!-- Step 7: Post-Merge Evaluation -->
+  <rect x="200" y="1570" width="680" height="170" class="box" />
+  <text x="540" y="1620" text-anchor="middle" class="title">7. Final Evaluation</text>
+  <text x="540" y="1655" text-anchor="middle" class="text">eval_bart_lora.py --model=merged</text>
+  <text x="540" y="1690" text-anchor="middle" class="text">Compare LoRA vs Merged</text>
+
+  <!-- Arrow 7 -->
+  <line x1="540" y1="1720" x2="540" y2="1790" class="arrow" />
+
+  <!-- Step 8: Deployment -->
+  <rect x="200" y="1790" width="680" height="190" class="box" />
+  <text x="540" y="1845" text-anchor="middle" class="title">8. Deployment</text>
+  <text x="540" y="1880" text-anchor="middle" class="text">Inference scripts · Notebook F</text>
+  <text x="540" y="1915" text-anchor="middle" class="text">FastAPI · Gradio · HF Hub · GGUF export</text>
+  <text x="540" y="1950" text-anchor="middle" class="text">Model ready for production</text>
+</svg>
+```
+
+
+
+
+
+
+
+
+
+
+
 
 To evaluate and improve a model’s step-by-step summarisation capability using a subset of the [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum), the following **workflow**, divided into several stages, is employed:  
   
