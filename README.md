@@ -760,7 +760,7 @@ https://wandb.ai/<your-team-or-user>/llama-qlora-samsum
 - GPU utilization: tracked
   
 
-Baseline (BART-large CNN)
+Baseline (BART-large CNN)  TABLE IN PROGRESS -THE SCORE ARE IN THE OUTPUTS 
 
 | Metric | Score |
 |---|---:|
@@ -781,9 +781,9 @@ Fine-tuned LoRA Model
 | BLEU | X.XXX |
 
 
-### Summarize new dialogues with your fine-tuned model  IN PROGREESS 
-### Reproduce benchmarking with your own subset          IN PROGRESS 
-### Swap in other dialogue datasets with minor tweaks     IN PROGRESS 
+### Summarize new dialogues with your fine-tuned model  IN PROGREESS OPTIONAL
+### Reproduce benchmarking with your own subset          IN PROGRESS OPTIONAL
+### Swap in other dialogue datasets with minor tweaks     IN PROGRESS OPTIONAL 
 
 ---
 
