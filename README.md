@@ -704,16 +704,7 @@ dataset = load_dataset("knkarthick/highlightsum")["train"].select(range(N_SAMPLE
 print(f"Loaded {len(dataset)} samples for training.")  
 ```
 
-> It has choosen to train HighlightSum on a subset Recommandations sizes 
- 
-| Subset size      | GPU time     | Quality   |
-| ---------------- | ------------ | --------- |
-| **1k** samples   | ~ min   |        |
-| **2k** samples   | ~ min      |      |
-| **5k** samples   | ~ hours |  |
-| **Full dataset** | ~s   |       |
 
-HighlightSum is small, so even 2k samples already gives strong summarization  
 
 
 ### Examples output train.py 
@@ -881,9 +872,9 @@ benchmarking
 packaging for API deployment
   
 
-### Summarize new dialogues with your fine-tuned model  
-### Reproduce benchmarking with your own subset  
-### Swap in other dialogue datasets with minor tweaks  
+### Summarize new dialogues with your fine-tuned model  IN PROGREESS 
+### Reproduce benchmarking with your own subset          IN PROGRESS 
+### Swap in other dialogue datasets with minor tweaks     IN PROGRESS 
 
 ---
 
@@ -912,27 +903,24 @@ Example ROUGE scores for LLaMA-1B fine-tuned on 1k SAMSum samples:
 _For 1B parameter models and limited data, this project significantly improves summarization performance while keeping memory and compute requirements low._
 
 ---
-
-## Features / What’s Included
-
-- Automated benchmarking and composite ranking of open LLMs
-- QLoRA-based fine-tuning pipeline 
-- Inference & evaluation scripts
-- Artifacts for deployment (merged weights, GGUF exports)
-- Experiment tracking (Weights & Biases)
-- Example Colab/Notebook integration
-
----
-
-
----
-
 ## Limitations & Recommendations
 
-- 1B parameter models are ideal for prototyping, not production
-- For higher accuracy, train on more data (full 14k SAMSum samples) and/or use larger models (3B/8B)
-- Production deployments may require further tuning to reduce hallucinations or errors
-- See Notebook F for tips on packaging and deploying your final model
+- _1. Dataset Coverage & Domain Shift_  
+  _Limitation_: The HighlightSum dataset mainly contains structured, turn-based dialogues.  
+  _Recommendation_: Apply domain-specific fine-tuning if your data differs significantly. Consider adding 5–10% in-domain samples for mixed fine-tuning.  
+- _2. Limited Long-Context Support (BART limitation)_  
+  _Limitation_: BART-large has a hard max input length of 1024 tokens. The training uses max_length=768 for speed on T4.  
+  _Recommendation_: Pre-chunk long transcripts into semantic segments (speaker turns, topic segments). Summarize each chunk → then summarize summaries (“recursive summarization”). If long-context is critical, consider exporting the
+    pipeline to a LLaMA 3.1/3.2 8B model with LoRA.  
+- _3 PEFT/LoRA Adapters Cannot Fix All Model Weaknesses_  
+  _Limitations_: LoRA fine-tuning only trains a small set of low-rank adapter weights.  
+   _Recommendation_: If summaries must follow a strict structure, consider adding: instruction-prefix templates, or task-specific prompting or control tokens (e.g., length control, style control)  
+- _4 T4 GPU Compute Constraints_  
+  _Limitation_: T4 has limited VRAM (16 GB), relatively low tensor-core throughput, slow 4-bit dequantization, slow 4-bit dequantization  
+  _Recommendation_: Keep max_length ≤ 768 for training,  Use gradient accumulation rather than larger batch sizes. Prefer LoRA r=8 for stability. For heavy workloads, consider: A100 or L4  
+- _5 Summaries May Become Too “Generic”_   
+  _Limitations_: BART tends to: compress aggressively omit nuance produce safe but generic summaries. Especially if dialogue contains ambiguous or multi-topic content.  
+  _Recommendation_: Add style-conditioned training samples ("bullet points", "2-line summary").    
 
 ---
  
