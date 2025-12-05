@@ -759,8 +759,8 @@ https://wandb.ai/<your-team-or-user>/llama-qlora-samsum
 - Model artifacts: saved & versioned  
 - GPU utilization: tracked
   
-
-Baseline (BART-large CNN)  TABLE IN PROGRESS -THE SCORE ARE IN THE OUTPUTS 
+## Results & Benchmarks  
+Baseline (BART-large CNN)  TABLE IN PROGRESS -THE SCORES ARE IN THE OUTPUTS 
 
 | Metric | Score |
 |---|---:|
@@ -798,20 +798,6 @@ Fine-tuned LoRA Model
 
 ---
 
-## Results & Benchmarks
-
-Example ROUGE scores for LLaMA-1B fine-tuned on 1k SAMSum samples:
-
-| Model         | ROUGE-1 | ROUGE-2 | ROUGE-L |
-|---------------|---------|---------|---------|
-| LLaMA-1B base | ~0.15   | ~0.04   | ~0.11   |
-| LLaMA-1B QLoRA (1k) | 0.214 | 0.091 | 0.163 |
-| BART-Large    | 0.49    | 0.26    | 0.45    |
-| LLaMA-3-8B QLoRA | 0.40+ | 0.20+  | 0.33+   |
-
-_For 1B parameter models and limited data, this project significantly improves summarization performance while keeping memory and compute requirements low._
-
----
 ## Limitations & Recommendations
 
 - _1. Dataset Coverage & Domain Shift_  
