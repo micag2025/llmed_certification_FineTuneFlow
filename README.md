@@ -747,7 +747,7 @@ The merged model should be used for deployment and inference.
 ### 9 Inference & Deployment 
 Run inference locally:  
 ```
-python llmed_certification_FineTuneFlow/inference_bart_lora.py  
+python llmed_certification_FineTuneFlow/inference_merged.py  
 ```
 Deployment options supported:
 - Hugging Face Hub
@@ -755,7 +755,7 @@ Deployment options supported:
 - Fast API server
 - GGUF export (via Notebook F)
 
-Run Notebbok F and the [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged)
+Run Notebbok F and go to [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged)
 
 
 ###  Experiment Tracking with Weights & Biases (W&B)  
