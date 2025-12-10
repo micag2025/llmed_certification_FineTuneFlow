@@ -255,7 +255,7 @@ is diplayed in the following workflow (end-to-end):
                                       │
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 10. DEPLOYMENT & INFERENCE                                                  │
+│ 10. DEPLOYMENT & INFERENCE   (Notebook E)                                   │
 │                                                                             │
 │   Inference script:                                                         │
 │     python inference_bart_lora.py                                           │
@@ -754,7 +754,8 @@ Deployment options supported:
 - Gradio Web UI
 - Fast API server
 - GGUF export (via Notebook F)
-- LM Studio / Ollama
+
+Run Notebbok F and the [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged)
 
 
 ###  Experiment Tracking with Weights & Biases (W&B)  
