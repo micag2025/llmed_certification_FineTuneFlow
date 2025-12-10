@@ -108,7 +108,7 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 ├── requirements.txt                   # Project dependencies
 └── .env_example.txt                   # Example environment file for API keys
 └── README.md                          # This file (HF Model Card compatible)
-├── Model_Card.md                      # Full model card for HF Hub
+├── Model_Card_merged.md                      # Full model card for HF Hub
 ```
 ---
 
