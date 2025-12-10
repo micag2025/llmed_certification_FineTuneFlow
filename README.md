@@ -737,7 +737,7 @@ Why?
 
 All ROUGE and BERTScore metrics show strong improvement, so BLEU can safely be disregarded.
 
-_Overall Conclusion (Recommended for Model Card)_
+_Overall Conclusion (Recommended for Model Card)_  
 Fine-tuning BART with LoRA yields significant improvements in summarization quality, nearly doubling semantic fidelity (BERTScore) compared to the baseline.
 The merged model performs best, achieving the highest ROUGE-1/2/L and BERTScore among all variants. This indicates that merging LoRA adapters into the base model:
 preserves all learned improvements may enhance layer interaction produces a more stable, higher-quality final model
