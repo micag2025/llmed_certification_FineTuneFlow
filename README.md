@@ -54,7 +54,8 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 ├── baseline_eval.py                   # Baseline BART evaluation (pre-training)
 ├── eval_bart_lora.py                  # Validation evaluation (ROUGE only)
 ├── eval_metrics_bart_lora.py          # Extended metrics: ROUGE + BERTScore + BLEU
-├── inference_bart_lora.py             # Inference (LoRA or merged)
+├── inference_bart_lora.py             # Inference (LoRA)
+├── inference_merged.py                # Inference  merged
 ├── merge_bart_lora.py                 # Merge LoRA -> base BART
 ├── eval_bart_lora_merged.py           # Validation evaluation merged bart lora
 │
