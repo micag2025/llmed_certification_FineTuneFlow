@@ -824,14 +824,6 @@ output
 Tom and A want to go to the animal shelter tomorrow afternoon. A wants to get a puppy for her son.
 ```
 
-
-
-
-### Reproduce benchmarking with your own subset          IN PROGRESS OPTIONAL
-### Swap in other dialogue datasets with minor tweaks     IN PROGRESS OPTIONAL 
-
----
-
 ## Technologies Used
 
 - [Hugging Face Transformers](https://huggingface.co/)
