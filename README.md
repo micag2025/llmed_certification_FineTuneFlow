@@ -798,7 +798,35 @@ https://wandb.ai/<your-team-or-user>/llama-qlora-samsum
 
 ## Example Usage                                                                 
 
-### Summarize new dialogues with your fine-tuned model  IN PROGREESS OPTIONAL
+### Summarize new dialogues with the merged fine-tuned model  
+
+```bash
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+import torch
+
+model_name = "dlaima/bart-highlightsum-merged"
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+
+text = """A: Hi Tom, are you busy tomorrow afternoon?
+B: I think I am. Why?
+A: I want to go to the animal shelter.
+B: For what?
+A: I'm getting a puppy for my son."""
+
+inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=1024)
+summary = model.generate(**inputs, max_new_tokens=192)
+print(tokenizer.decode(summary[0], skip_special_tokens=True))
+```
+output
+```
+Tom and A want to go to the animal shelter tomorrow afternoon. A wants to get a puppy for her son.
+```
+
+
+
+
 ### Reproduce benchmarking with your own subset          IN PROGRESS OPTIONAL
 ### Swap in other dialogue datasets with minor tweaks     IN PROGRESS OPTIONAL 
 
