@@ -1,12 +1,11 @@
-# 🌟 HuggingFace Model Card — BART-HighlightSum (Merged Model)
+# HuggingFace Model Card — BART-HighlightSum (Merged Model)
 
-(You can paste this directly into README.md on your HF repo.)
 
 ## BART-HighlightSum (Merged Model)
 Fine-tuned BART-Large on the HighlightSum dialogue summarization dataset (Merged LoRA → Full Model)
 
 **Author:** @dlaima  
-**License:** Apache-2.0  
+**License:** MIT 
 **Model type:** Seq2Seq Summarization  
 **Base model:** facebook/bart-large-cnn  
 **Dataset:** HighlightSum (dialogue summarization)  
@@ -44,7 +43,7 @@ It is therefore the recommended model for deployment, inference, and user-facing
 
 Using Example #1 from the HighlightSum dataset:
 
-### 🗨 Dialogue
+### Dialogue
 ```
 A: What are you getting him?
 B: Something cool.
@@ -55,28 +54,28 @@ B: He hates reading.
 A: Then I give up. I have no idea what to get him.
 ```
 
-### 🏅 Human Gold Summary
+###  Human Gold Summary
 They discuss gift ideas for someone's son.
 
-### 🔥 Merged Model Summary
+###  Merged Model Summary
 They talk about what to get a boy as a gift but can't decide.
 
 → The model captures the intent, context, and key meaning with improved fluency and coherence.
 
-## 🧩 Intended Use
+## Intended Use
 
-### ✔ Suitable for
+### Suitable for
 - Dialogue summarization
 - Customer service chat compression
 - Meeting note extraction
 - Educational tools
 
-### ❌ Not suitable for
+### Not suitable for
 - Factual QA
 - Domain-specific technical summaries without fine-tuning
 - Safety-critical use
 
-## 🔧 How to Use
+## How to Use
 
 ### Python Inference
 ```python
@@ -99,7 +98,7 @@ summary = model.generate(**inputs, max_new_tokens=192)
 print(tokenizer.decode(summary[0], skip_special_tokens=True))
 ```
 
-## 🏋️ Training Details
+## Training Details
 
 - **Method:** LoRA (rank 8)
 - **Model:** BART-Large
@@ -125,7 +124,7 @@ A dataset of dialogue → summary pairs from multiple conversational sources.
 - 2,000 samples for training
 - 200 samples for validation
 
-## 📦 Files Included in This Repo
+## Files Included in This Repo
 
 | File | Description |
 |------|-------------|
@@ -135,7 +134,7 @@ A dataset of dialogue → summary pairs from multiple conversational sources.
 | tokenizer.json / tokenizer.model | Tokenizer files |
 | README.md | This model card |
 
-## ⚖️ Limitations & Recommendations
+## Limitations & Recommendations
 
 ### Limitations
 - May shorten overly long dialogues excessively
@@ -160,3 +159,4 @@ This model will be updated as:
 ## 📫 Contact
 
 For questions, improvements, or collaboration, feel free to reach out via GitHub or HuggingFace (@dlaima).
+
