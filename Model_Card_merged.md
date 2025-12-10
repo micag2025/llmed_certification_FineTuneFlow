@@ -53,7 +53,7 @@ B: He hates reading.
 A: Then I give up. I have no idea what to get him.
 ```
 
-###  Human Gold Summary
+###  Human Summary
 They discuss gift ideas for someone's son.
 
 ###  Merged Model Summary
@@ -158,5 +158,6 @@ This model will be updated as:
 ## 📫 Contact
 
 For questions, improvements, or collaboration, feel free to reach out via GitHub or HuggingFace (@dlaima).
+
 
 
