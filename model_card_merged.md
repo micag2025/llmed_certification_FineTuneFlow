@@ -1,6 +1,5 @@
 # HuggingFace Model Card — BART-HighlightSum (Merged Model)
 
-
 ## BART-HighlightSum (Merged Model)
 Fine-tuned BART-Large on the HighlightSum dialogue summarization dataset (Merged LoRA → Full Model)
 
@@ -11,7 +10,7 @@ Fine-tuned BART-Large on the HighlightSum dialogue summarization dataset (Merged
 **Dataset:** HighlightSum (dialogue summarization)  
 **Finetuning method:** LoRA → merged into full FP16 BART  
 
-## 🚀 Model Summary
+## Model Summary
 
 This model is a merged BART-Large fine-tuned on 2,000 training + 200 validation samples from the HighlightSum dataset.
 It produces concise, accurate summaries of multi-turn dialogues.
@@ -23,7 +22,7 @@ It produces concise, accurate summaries of multi-turn dialogues.
 
 This version is recommended for production, as it scores highest among all variants (Baseline, LoRA, Merged).
 
-## 📊 Performance
+## Performance
 Evaluation on HighlightSum (Validation 200 samples)
 
 | Metric | Baseline BART | LoRA Model | Merged Model |
@@ -159,4 +158,5 @@ This model will be updated as:
 ## 📫 Contact
 
 For questions, improvements, or collaboration, feel free to reach out via GitHub or HuggingFace (@dlaima).
+
 
