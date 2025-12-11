@@ -748,7 +748,7 @@ Run inference locally:
 python llmed_certification_FineTuneFlow/inference_merged.py  
 ```
 
-To publish the merged BART model to HuggingFace, the final, production-ready publishing script (`Notebook_F` equivalent) allows to upload the trained model reliably. This includes **full model card** and checkpoint upload script.  See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged).    
+To publish the merged BART model to HuggingFace, the final, production-ready publishing script (`Notebook_F` equivalent) allows to upload the trained model reliably. This includes **full model card** and checkpoint upload script. It is a common and accepted practice to adjust the `config.json` after uploading a model to Hugging Face, especially when merging LoRA weights or ensuring the final configuration matches the intended architecture and generation defaults See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged).    
 
 #### Model Card (Hugging Face Summary)  
 **Model**: bart-large-cnn fine-tuned with LoRA on HighlightSum  
