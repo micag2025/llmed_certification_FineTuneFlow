@@ -18,7 +18,7 @@ from rouge_score import rouge_scorer
 # -------------------------
 # Config
 # -------------------------
-MODEL_DIR = "/content/llmed_certification_FineTuneFlow/ft_outputs/bart_merged_highlighsum"
+MODEL_DIR = "/content/llmed_certification_FineTuneFlow/ft_outputs/bart_merged_highlightsum"
 VALIDATION_SIZE = 200
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -75,7 +75,8 @@ for idx, sample in enumerate(dataset):
             max_new_tokens=MAX_NEW_TOKENS,
             num_beams=4,
             no_repeat_ngram_size=3,
-            length_penalty=1.0
+            length_penalty=1.0,
+            early_stopping=True  # Added early_stopping parameter
         )
 
     pred = tokenizer.decode(output[0], skip_special_tokens=True)
