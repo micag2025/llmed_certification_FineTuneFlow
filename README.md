@@ -339,7 +339,7 @@ All scripts support:
 **Limitations**: May miss fine-grained details, not domain-specialized  
 **License**: MIT (inherits from BART)  
 '
-> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/1b4e2d1ccc8db3a4329141f786a276b15142c6f7/Screenshots/Screenshot_model_huggingface.co.jpeg) 
+> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/6c4b9058581f14ea2d6bd979b30ff7bfa7afb94d/Model_Card_merged.md) 
 ---
 
 ## Getting Started  
