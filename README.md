@@ -682,7 +682,7 @@ _Interpretation_
 - Highest ROUGE
 - BLEU drops (expected for free-form summarization)
 
-**Model Comparison Base BART (optional baseline), LoRA-adapted BART and  Merged FP16 BART**
+**Model Comparison Base BART (optional baseline), LoRA-adapted BART and  Merged FP16 BART**  
 From the model comparison based on the evaluation metrics, it has been verified whether; 
 - Did LoRA training improve performance?
 - Does merging preserve performance?
