@@ -598,8 +598,6 @@ print(f"🔥 Using device: {device}")
 **Screeshot output train.py** 
 
 -**Model Loaded in 4-bit Successfully**
-![Model Loaded in 4-bit Successfully](Screenshot_3-12-2025_163751_colab.research.google.com.jpeg)  
-
 ![Model Loaded in 4-bit Successfully](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/1b4e2d1ccc8db3a4329141f786a276b15142c6f7/Screenshots/Screenshot_3-12-2025_163751_colab.research.google.com.jpeg)
 
 
@@ -761,6 +759,10 @@ Deployment options supported:
 - GGUF export (via Notebook F)
 
 Run Notebbok F and go to [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged)
+
+**Screenshot HuggingFace model interface**  
+
+![Hugging_Face_model](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/1b4e2d1ccc8db3a4329141f786a276b15142c6f7/Screenshots/Screenshot_model_huggingface.co.jpeg) 
 
 
 ###  Experiment Tracking with Weights & Biases (W&B)  
