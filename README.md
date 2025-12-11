@@ -1,4 +1,4 @@
-# LLM Engineering & Deployment (LLMED) Certification – Capstone Project : Fine-Tuning & Optimization of BART for Dialogue Summarization (HighlightSum)    
+# LLM Engineering & Deployment (LLMED) Certification: Fine-Tuning & Optimization of BART for Dialogue Summarization (HighlightSum)    
 
 This repository contains the full implementation for to the publication **LLMED Certification - Capstone Project : LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
 
