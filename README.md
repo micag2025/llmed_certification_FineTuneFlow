@@ -388,9 +388,9 @@ pip install -r requirements.txt
 - Dataset: Highlightsum dataset  
   - Consists of conversational transcripts  
   - Targets are highlight-style summaries (short bullet-like summaries)        
-- Sample used:
-  2,000 for training  
-  200 for validation
+- Sample used:  
+  - 2,000 for training    
+  - 200 for validation  
 
 _Recommended Training Subset Sizes (HighlightSum)_
 | Subset Size      | GPU Time (T4) | Expected Quality | Notes                                      |
@@ -770,7 +770,7 @@ Run Notebbok F and go to [HF_model on Hugging Face](https://huggingface.co/dlaim
 
 
 ###  Experiment Tracking with Weights & Biases (W&B)  
-Training runs are instrumented and tracked using [Weights & Biases](https://wandb.ai/). This integration enables:
+Training runs are instrumented and tracked using [Weights & Biases](https://wandb.ai/site). This integration enables:
 - Visualization of training loss and evaluation curves
 - Learning rate schedule and gradient monitoring
 - GPU memory usage tracking during training
