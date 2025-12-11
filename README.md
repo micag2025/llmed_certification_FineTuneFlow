@@ -597,7 +597,8 @@ print(f"🔥 Using device: {device}")
 
 **Screeshot output train.py** 
 
--**Model Loaded in 4-bit Successfully**
+- **Model Loaded in 4-bit Successfully**
+  
 ![Model Loaded in 4-bit Successfully](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/1b4e2d1ccc8db3a4329141f786a276b15142c6f7/Screenshots/Screenshot_3-12-2025_163751_colab.research.google.com.jpeg)
 
 
