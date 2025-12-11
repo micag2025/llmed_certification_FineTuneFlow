@@ -338,7 +338,7 @@ All scripts support:
 **Limitations**: May miss fine-grained details, not domain-specialized  
 **License**: MIT (inherits from BART)  
 '
-> _Note_ For more information see [Model_Card](micag2025/llmed_certification_FineTuneFlow/Model_Card_merged.md) 
+> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/fe07e925370e2adf6ebc91709170d9f1102db227/Model_Card_merged.md) 
 ---
 
 ## Getting Started  
