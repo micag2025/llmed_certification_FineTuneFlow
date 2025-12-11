@@ -682,6 +682,12 @@ _Interpretation_
 - Highest ROUGE
 - BLEU drops (expected for free-form summarization)
 
+**Example Input / Output**  
+Screenshot of few items of the HighlightSum dataset showing the summary evaluations predictions of BART LoRa merged. In details, the above screenshot diplays the `Dialogue`, the `Human Summary` and the `Merged Model Summary` respectively. As it can be seen the `Merged Model` captures the intent, context, and key meaning with improved fluency and coherence.
+
+![Screenshot_validation_predictions.csv](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/f3f644cf9f1b0e13115945a99aea3f3eb705c196/Screenshots/Screenshot_11-12-2025_131040_wandb.ai.jpeg)
+
+
 **Model Comparison Base BART (optional baseline), LoRA-adapted BART and  Merged FP16 BART**  
 From the model comparison based on the evaluation metrics, it has been verified whether; 
 - Did LoRA training improve performance?
@@ -769,7 +775,7 @@ Training runs are instrumented and tracked using [Weights & Biases](https://wand
 - Evaluation metrics logging after each epoch
 - Model artifact saving and versioning
 
-All W&B integration is handled in the training script [`run_llama_qlora.py`](run_llama_qlora.py) with minimal and safe changes:
+All W&B integration is handled in the training script `train_bart_lora.py' with minimal and safe changes:
 - Added `wandb.init(...)` for project setup
 - Configured `report_to="wandb"` and custom `run_name`
 - Enabled configuration tracking for reproducibility
