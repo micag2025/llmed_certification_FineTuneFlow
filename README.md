@@ -106,6 +106,8 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 │       │   ├── train_q_lora_LLaMA-1B_20251202_123700.py
 │       │   ├── recommendations.json
 │       │
+│   ├── Screenshopts/
+│   ├── graphs_W&B/
 ├── requirements.txt                   # Project dependencies
 └── .env_example.txt                   # Example environment file for API keys
 └── .gitignore                         # Ignored files and folders
