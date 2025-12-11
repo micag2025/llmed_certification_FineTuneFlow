@@ -760,9 +760,8 @@ Deployment options supported:
 - Hugging Face Hub
 - Gradio Web UI
 - Fast API server
-- GGUF export (via Notebook F)
 
-Run Notebbok F and go to [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged)
+To publish the merged BART model to HuggingFace, the final, production-ready publishing script (Notebook_F equivalent) allows to upload the trained model reliably. See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged) 
 
 **Screenshot HuggingFace model interface**  
 
