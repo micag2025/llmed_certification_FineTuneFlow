@@ -327,7 +327,7 @@ All scripts support:
 
 --- 
 
-## Model Card (Hugging Face Summary)  > see also Model_Card.md   
+## Model Card (Hugging Face Summary)  
 **Model**: bart-large-cnn fine-tuned with LoRA on HighlightSum  
 **Task**: Dialogue Summarization  
 **Training Samples**: 2,000  
@@ -337,7 +337,8 @@ All scripts support:
 **Intended Use**: Conversational summarization (multi-turn dialog)  
 **Limitations**: May miss fine-grained details, not domain-specialized  
 **License**: MIT (inherits from BART)  
-
+'
+> _Note_ For more information see [Model_Card](micag2025/llmed_certification_FineTuneFlow/Model_Card_merged.md) 
 ---
 
 ## Getting Started  
