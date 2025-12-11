@@ -1,6 +1,6 @@
 # LLM Engineering & Deployment (LLMED) Certification: Fine-Tuning & Optimization of BART for Dialogue Summarization (HighlightSum)    
 
-This repository contains the full implementation for to the publication **LLMED Certification - Capstone Project : LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
+This repository contains the full implementation for to the publication **LLMED Certification : LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
 
 The objective is to **select**, **fine-tune**, **evaluate**, and **deploy** an efficient open-source model for **dialogue summarization**, using a subset of the 
 [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum). The project includes:  
@@ -751,17 +751,13 @@ preserves all learned improvements may enhance layer interaction produces a more
 The merged model should be used for deployment and inference.
 
 
-### 9 Inference & Deployment 
+### 9 Inference & Deployment Hugging Face Hub  
 Run inference locally:  
 ```
 python llmed_certification_FineTuneFlow/inference_merged.py  
 ```
-Deployment options supported:
-- Hugging Face Hub
-- Gradio Web UI
-- Fast API server
 
-To publish the merged BART model to HuggingFace, the final, production-ready publishing script (Notebook_F equivalent) allows to upload the trained model reliably. See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged) 
+To publish the merged BART model to HuggingFace, the final, production-ready publishing script (`Notebook_F` equivalent) allows to upload the trained model reliably. This includes full model card and checkpoint upload script.  See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged).    
 
 **Screenshot HuggingFace model interface**  
 
