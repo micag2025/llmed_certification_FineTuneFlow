@@ -782,11 +782,11 @@ All W&B integration is handled in the training script `train_bart_lora.py` with 
 
 #### Example Visualizations
 
-![Training Loss Curve](graphs_W&B/Training_Loss_Curves.jpeg)
+![Training Loss Curve](graphs_W&B/Trainig_Loss_Curves.jpeg)
 
-![Evaluation Metrics](graphs_W&B/evaluation_metrics.jpeg)   
+![Evaluation Metrics](graphs_W&B/Evaluation_curves.jpeg)   
 
-![GPU Utilization](graphs_W&B/GPU_utilisation.jpeg)   
+![GPU Utilization](graphs_W&B/GPU_Utilisation.jpeg)   
 
 **Usage Note**: All tracking features are enabled only during training within the notebook/script.
 
