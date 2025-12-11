@@ -339,7 +339,7 @@ All scripts support:
 **Limitations**: May miss fine-grained details, not domain-specialized  
 **License**: MIT (inherits from BART)  
 '
-> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/fe07e925370e2adf6ebc91709170d9f1102db227/Model_Card_merged.md) 
+> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/1b4e2d1ccc8db3a4329141f786a276b15142c6f7/Screenshots/Screenshot_model_huggingface.co.jpeg) 
 ---
 
 ## Getting Started  
@@ -598,7 +598,9 @@ print(f"🔥 Using device: {device}")
 **Screeshot output train.py** 
 
 -**Model Loaded in 4-bit Successfully**
-![Model Loaded in 4-bit Successfully](Screenshot_3-12-2025_163751_colab.research.google.com.jpeg)
+![Model Loaded in 4-bit Successfully](Screenshot_3-12-2025_163751_colab.research.google.com.jpeg)  
+
+![Model Loaded in 4-bit Successfully](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/1b4e2d1ccc8db3a4329141f786a276b15142c6f7/Screenshots/Screenshot_3-12-2025_163751_colab.research.google.com.jpeg)
 
 
 - **QLoRA Training Started**
