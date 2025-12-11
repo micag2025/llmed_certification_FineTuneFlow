@@ -830,8 +830,7 @@ Tom and A want to go to the animal shelter tomorrow afternoon. A wants to get a 
 - [Hugging Face Transformers](https://huggingface.co/)
 - [PEFT (LoRA/QLoRA)](https://github.com/huggingface/peft)
 - [Weights & Biases](https://wandb.ai/site)
-- [bitsandbytes](https://github.com/TimDettmers/bitsandbytes) (quantization)
-- [GGUF/Llama.cpp compatible conversion](https://github.com/ggerganov/llama.cpp)
+- [bitsandbytes](https://github.com/TimDettmers/bitsandbytes) (quantization)  
 - Python, Colab/Jupyter
 
 ---
