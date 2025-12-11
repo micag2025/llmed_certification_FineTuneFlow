@@ -473,6 +473,7 @@ model_benchmarks/notebook_C/final_ranking.html
 
 
 The above Ranking Benchmark Table provides a full benchmarking and model-selection pipeline. Thus, this identifies automatically the best model to fine-tune based on balanced performance rather than size alone. To sum up, the highest composite_score wins. When selecting models for dialogue summarization, balancing prediction quality with inference efficiency is crucial — especially in practical or real-time settings.  
+
 _Key takeaways_  
   - Composite score reflects both accuracy and speed, giving a more holistic evaluation than ROUGE alone.    
   - Models like BART-large outperform others because they achieve solid accuracy and fast inference.    
