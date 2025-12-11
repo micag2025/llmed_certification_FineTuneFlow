@@ -866,13 +866,13 @@ Tom and A want to go to the animal shelter tomorrow afternoon. A wants to get a 
  
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/micag2025/llmed_Certification_Project1_FineTuneFlow/blob/97ed39ce6ae05e2b0546450448328841ef67816f/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/635810bf5156df647e9733c290e45a20760d04e7/LICENSE) file for details.
 
 ---
 
 ## Contact
 
-If you encounter bugs, have questions, or want to request a new feature, please [open an issue](https://github.com/micag2025/llmed_Certification_Project1_FineTuneFlow/issues) on this repository.   
+If you encounter bugs, have questions, or want to request a new feature, please [open an issue](https://github.com/micag2025/llmed_certification_FineTuneFlow/pulls) on this repository.   
 
 
 
