@@ -330,20 +330,6 @@ All scripts support:
 
 --- 
 
-## Model Card (Hugging Face Summary)  
-**Model**: bart-large-cnn fine-tuned with LoRA on HighlightSum  
-**Task**: Dialogue Summarization  
-**Training Samples**: 2,000  
-**Validation Samples**: 200  
-**Method**: LoRA (r=8, α=32)  
-**Metrics**: ROUGE, BERTScore, BLEU  
-**Intended Use**: Conversational summarization (multi-turn dialog)  
-**Limitations**: May miss fine-grained details, not domain-specialized  
-**License**: MIT (inherits from BART)  
-'
-> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/6c4b9058581f14ea2d6bd979b30ff7bfa7afb94d/Model_Card_merged.md) 
----
-
 ## Getting Started  
 This section shows how to install dependencies, configure authentication, and run the full pipeline.  
 
@@ -757,7 +743,19 @@ Run inference locally:
 python llmed_certification_FineTuneFlow/inference_merged.py  
 ```
 
-To publish the merged BART model to HuggingFace, the final, production-ready publishing script (`Notebook_F` equivalent) allows to upload the trained model reliably. This includes full model card and checkpoint upload script.  See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged).    
+To publish the merged BART model to HuggingFace, the final, production-ready publishing script (`Notebook_F` equivalent) allows to upload the trained model reliably. This includes **full model card** and checkpoint upload script.  See [HF_model on Hugging Face](https://huggingface.co/dlaima/bart-highlightsum-merged).    
+
+#### Model Card (Hugging Face Summary)  
+**Model**: bart-large-cnn fine-tuned with LoRA on HighlightSum  
+**Task**: Dialogue Summarization  
+**Training Samples**: 2,000  
+**Validation Samples**: 200  
+**Method**: LoRA (r=8, α=32)  
+**Metrics**: ROUGE, BERTScore, BLEU  
+**Intended Use**: Conversational summarization (multi-turn dialog)  
+**Limitations**: May miss fine-grained details, not domain-specialized  
+**License**: MIT (inherits from BART)  
+> _Note_ For more information see [Model_Card](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/6c4b9058581f14ea2d6bd979b30ff7bfa7afb94d/Model_Card_merged.md) 
 
 **Screenshot HuggingFace model interface**  
 
