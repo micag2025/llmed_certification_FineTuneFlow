@@ -1,0 +1,137 @@
+############################################################
+# PYTHON BASICS
+############################################################
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pkl
+*.pickle
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Bytecode cache
+*.cache/
+
+############################################################
+# OPERATING SYSTEM / EDITOR TRASH
+############################################################
+# Windows
+Thumbs.db
+desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+############################################################
+# JUPYTER NOTEBOOKS
+############################################################
+.ipynb_checkpoints/
+.notebooks_cache/
+**/.ipynb_checkpoints/
+
+############################################################
+# MODEL WEIGHTS & TRAINING ARTIFACTS
+############################################################
+# HuggingFace cache
+huggingface/
+~/.cache/huggingface/
+
+# Transformers model files – do NOT upload these to GitHub
+*.bin
+*.safetensors
+*.pb
+*.h5
+*.msgpack
+
+# Adapter files from LoRA
+adapter_model.safetensors
+adapter_config.json
+
+# Tokenizer files (optional to track — comment out if needed)
+**/tokenizer.json
+**/tokenizer_config.json
+**/vocab.json
+**/merges.txt
+**/special_tokens_map.json
+**/generation_config.json
+
+############################################################
+# TRAINING OUTPUT FOLDERS
+############################################################
+# All fine-tuning outputs
+ft_outputs/**
+
+# If you want to track ONLY configs, uncomment this:
+# !ft_outputs/**/config.json
+# !ft_outputs/**/tokenizer_config.json
+
+############################################################
+# METRICS / EVALUATION ARTIFACTS
+############################################################
+metrics/*.csv
+metrics/*.json
+metrics/*.png
+metrics/*.txt
+
+# Notebook plot outputs
+outputs/evaluation/
+outputs/benchmarks/**
+
+############################################################
+# UPLOADED DATA & EXTERNAL DATASETS
+############################################################
+data/
+datasets/
+uploads/
+
+*.csv
+*.tsv
+*.jsonl
+*.xlsx
+*.ods
+
+# If you want example CSVs in repo, comment out above.
+
+############################################################
+# GRADIO
+############################################################
+gradio_cached_examples/
+*.gradio/
+gradio_logs/
+cache/
+
+############################################################
+# SECRET KEYS / ENV
+############################################################
+.env
+*.env
+.env.*
+!*.env_example.txt   # keep the example template
+
+############################################################
+# LOGGING & TEMPORARY FILES
+############################################################
+*.log
+logs/
+*.tmp
+tmp/
+temp/
+*.bak
+
+############################################################
+# CHECKPOINTS FROM TRAINING
+############################################################
+checkpoint/
+checkpoints/
+**/checkpoint-*/
