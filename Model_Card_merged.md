@@ -15,10 +15,10 @@ Fine-tuned BART-Large on the HighlightSum dialogue summarization dataset (Merged
 This model is a merged BART-Large fine-tuned on 2,000 training + 200 validation samples from the HighlightSum dataset.
 It produces concise, accurate summaries of multi-turn dialogues.
 
-✔ LoRA fine-tuning  
-✔ LoRA weights merged into base BART  
-✔ No PEFT required for inference  
-✔ Lightweight, fast, and deployment-ready  
+- LoRA fine-tuning    
+- LoRA weights merged into base BART    
+- No PEFT required for inference    
+- Lightweight, fast, and deployment-ready    
 
 This version is recommended for production, as it scores highest among all variants (Baseline, LoRA, Merged).
 
@@ -38,33 +38,11 @@ Evaluation on HighlightSum (Validation 200 samples)
 The merged model performs best, achieving the highest ROUGE-1, ROUGE-2, ROUGE-L and BERTScore among all variants.
 It is therefore the recommended model for deployment, inference, and user-facing applications.
 
-## 🧪 Example Input / Output
+##  Example Input / Output
 
-Using Example #1 from the HighlightSum dataset:
+Screenshot of few items of the HighlightSum dataset showing the summary evaluations predictions of BART LoRa merged. In details, the above screenshot diplays the `Dialogue`, the `Human Summary` and the `Merged Model Summary` respectively. As it can be seen the `Merged Model` captures the intent, context, and key meaning with improved fluency and coherence.
 
 ![Screenshot_validation_predictions.csv](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/f3f644cf9f1b0e13115945a99aea3f3eb705c196/Screenshots/Screenshot_11-12-2025_131040_wandb.ai.jpeg)
-
-
-
-
-### Dialogue
-```
-A: What are you getting him?
-B: Something cool.
-A: What about a Lego?
-B: He is too old for that now.
-A: What about a book?
-B: He hates reading.
-A: Then I give up. I have no idea what to get him.
-```
-
-###  Human Summary
-They discuss gift ideas for someone's son.
-
-###  Merged Model Summary
-They talk about what to get a boy as a gift but can't decide.
-
-→ The model captures the intent, context, and key meaning with improved fluency and coherence.
 
 ## Intended Use
 
@@ -163,6 +141,7 @@ This model will be updated as:
 ## 📫 Contact
 
 For questions, improvements, or collaboration, feel free to reach out via GitHub or HuggingFace (@dlaima).
+
 
 
 
