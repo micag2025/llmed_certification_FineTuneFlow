@@ -42,6 +42,11 @@ It is therefore the recommended model for deployment, inference, and user-facing
 
 Using Example #1 from the HighlightSum dataset:
 
+![Screenshot_validation_predictions.csv](https://github.com/micag2025/llmed_certification_FineTuneFlow/blob/f3f644cf9f1b0e13115945a99aea3f3eb705c196/Screenshots/Screenshot_11-12-2025_131040_wandb.ai.jpeg)
+
+
+
+
 ### Dialogue
 ```
 A: What are you getting him?
@@ -158,6 +163,7 @@ This model will be updated as:
 ## 📫 Contact
 
 For questions, improvements, or collaboration, feel free to reach out via GitHub or HuggingFace (@dlaima).
+
 
 
 
