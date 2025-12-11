@@ -775,7 +775,7 @@ Training runs are instrumented and tracked using [Weights & Biases](https://wand
 - Evaluation metrics logging after each epoch
 - Model artifact saving and versioning
 
-All W&B integration is handled in the training script `train_bart_lora.py' with minimal and safe changes:
+All W&B integration is handled in the training script `train_bart_lora.py` with minimal and safe changes:
 - Added `wandb.init(...)` for project setup
 - Configured `report_to="wandb"` and custom `run_name`
 - Enabled configuration tracking for reproducibility
