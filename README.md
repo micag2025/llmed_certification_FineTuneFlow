@@ -721,8 +721,7 @@ This confirms that LoRA merging was successful and did not degrade performanceâ€
 - fewer numerical precision issues
 
 3. BLEU is misleading here â€” ignore it  
-BLEU drops in the merged model, but this is not a negative signal.  
-Why?  
+BLEU drops in the merged model, but this is not a negative signal due to several reasons, such as:   
 - Dialogue summarization involves paraphrasing  
 - BLEU unfairly penalizes paraphrases (word-based n-grams)  
 - ROUGE and BERTScore are the correct metrics for summarization  
