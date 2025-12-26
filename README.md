@@ -89,7 +89,7 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 │   ├── Notebook_C.ipynb               # Model benchmarking & selection
 │   ├── Notebook_D.ipynb               # Auto fine-tuning plan generator
 │   ├── Notebook_E.ipynb               # Evaluation dashboard (plots, charts)  
-│   ├── Notebook_F.ipynb               # Deployment
+│   ├── Notebook_F.ipynb               # Model Publishing
 │  
 │
 ├── outputs/
@@ -258,7 +258,7 @@ is diplayed in the following workflow (end-to-end):
                                       │
                                       ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ 10. DEPLOYMENT & INFERENCE   (Notebook E)                                   │
+│ 10. MODEL PUBLISHING  (Notebook E)                                   │
 │                                                                             │
 │   Inference script:                                                         │
 │     python inference_bart_lora.py                                           │
@@ -309,7 +309,7 @@ Each evaluation includes the metrics diplayed in the above table:
 
 ---  
 
-## Deployment Options    
+## Model Publishing Options    
 Hugging Face Hub : Includes full model card + checkpoint upload script.
 
 ---   
@@ -654,6 +654,10 @@ Output:
 ```
 ft_outputs/bart_merged_highlightsum/
 ```
+> _Notes_: : Merging LoRA adapters into the base weights should be functionally equivalent to running the base model with adapters attached. 
+If the merged checkpoint shows noticeably different metrics (better or worse) than the adapter workflow, typical causes include mismatched 
+generation or tokenization settings, dtype/quantization differences, evaluation mode/use_cache or seeding differences, or an 
+implementation/scale bug in the merge procedure.
 
 ### 8 Final Evaluation (Merged Model)
 ```
@@ -741,7 +745,7 @@ preserves all learned improvements may enhance layer interaction produces a more
 The merged model should be used for deployment and inference.
 
 
-### 9 Inference & Deployment Hugging Face Hub  
+### 9 Model Publishing Hugging Face Hub  
 Run inference locally:  
 ```
 python llmed_certification_FineTuneFlow/inference_merged.py  
@@ -854,7 +858,16 @@ Tom and A want to go to the animal shelter tomorrow afternoon. A wants to get a 
   - _Recommendation_: If summaries must follow a strict structure, consider adding: instruction-prefix templates, or task-specific prompting or control tokens (e.g., length control, style control)  
 - **T4 GPU Compute Constraints**   
   - _Limitation_: T4 has limited VRAM (16 GB), relatively low tensor-core throughput, slow 4-bit dequantization, slow 4-bit dequantization  
-  - _Recommendation_: Keep max_length ≤ 768 for training,  Use gradient accumulation rather than larger batch sizes. Prefer LoRA r=8 for stability. For heavy workloads, consider: A100 or L4  
+  - _Recommendation_: Keep max_length ≤ 768 for training,  Use gradient accumulation rather than larger batch sizes. Prefer LoRA r=8 for stability. For heavy workloads, consider: A100 or L4
+- **Alternatives: Retrieval‑Augmented Generation (RAG) & Few‑Shot Prompting**
+  -  _Limitation Few‑shot prompting_: No training cost, but constrained by prompt design and context window. Long prompts increase latency and token cost, can yield inconsistent or generic outputs, and make strict formatting harder to enforce.    
+  -  _Limitation RAG_: Improves factual grounding, but adds system complexity (embeddings, index, updates), extra latency, and per-request costs. Output quality depends heavily on retrieval quality.  
+  - _Recommendation_: Use `few-shot prompting` for fast prototyping or very low query volumes. Use `RAG` when external knowledge and factual accuracy are required and added complexity is acceptable. For production summarization needing consistent format, high throughput, and lower long-term cost, prefer a small `PEFT fine-tune (LoRA/QLoRA)`. `Best trade-off`: RAG for grounding + a LoRA-tuned summarizer for consistency and compression. `Cost note`: Treat fine-tuning as a one-time cost and compare it against cumulative token and retrieval costs at scale.
+- **Merge validation**        
+  - _Limitation_: Merged checkpoints can show unexpected metric differences due to tokenization/generation‑config mismatches, precision/quantization drift, 
+or merge‑implementation errors.       
+  - _Recommendation_: Always run a deterministic post‑merge validation (identical tokenizer and generate() kwargs, fixed seeds, same dtype), 
+compare logits/parameter deltas, and keep both adapter and merged artifacts for auditing.   
 - **Summaries May Become Too “Generic”**  
   - _Limitations_: BART tends to: compress aggressively omit nuance produce safe but generic summaries. Especially if dialogue contains ambiguous or multi-topic content.  
   - _Recommendation_: Add style-conditioned training samples ("bullet points", "2-line summary").    
