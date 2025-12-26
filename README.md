@@ -2,13 +2,12 @@
 
 This repository contains the full implementation for to the publication **LLMED Certification : LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
 
-The objective is to **select**, **fine-tune**, **evaluate**, and **deploy** an efficient open-source model for **dialogue summarization**, using a subset of the 
+The objective is to **select**, **fine-tune**, **evaluate**, and **publish** an efficient open-source model for **dialogue summarization**, using a subset of the 
 [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum). The project includes:  
 - model benchmarking and selection  
 - LoRA/QLoRA fine-tuning  
 - evaluation (ROUGE, BERTScore, BLEU)  
-- merging 
-- inference and deployment  
+- merging  
 - Hugging Face publishing
 - reproducible scripts & W&B experiment tracking
 
@@ -36,9 +35,8 @@ Prediction exports (CSV + metrics)
 - **Merging + Final Model**  
 Merge LoRA adapters into base BART → produce a **single deployable checkpoint**.
 
-- **Deployment**    
-Inference script  
-Hugging Face deployment
+- **Publish model**    
+Publish model on Hugging Face
 
 - **Experiment Tracking**  
 All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.ai/site).  
@@ -116,7 +114,7 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 ---
 
 ## LLMED Fine-Tuning & Deployment Workflow  
-The complete pipeline including training → evaluation → merging → deployment   
+The complete pipeline including training → evaluation → merging → publishing
 is diplayed in the following workflow (end-to-end):  
 
 ```
