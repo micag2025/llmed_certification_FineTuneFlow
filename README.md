@@ -113,7 +113,7 @@ All training & evaluation runs logged to [Weights & Biases (W&B)](https://wandb.
 ```
 ---
 
-## LLMED Fine-Tuning & Deployment Workflow  
+## LLMED Fine-Tuning & Publishing Model Workflow  
 The complete pipeline including training → evaluation → merging → publishing
 is diplayed in the following workflow (end-to-end):  
 
