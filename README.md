@@ -1,6 +1,6 @@
 # LLM Engineering & Deployment (LLMED) Certification: Fine-Tuning & Optimization of BART for Dialogue Summarization (HighlightSum)    
 
-This repository contains the full implementation for to the publication **LLMED Certification : LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
+This repository contains the full implementation for the publication **LLMED Certification : LLM Fine-Tuning & Optimization of Bart for Dialogue Summarization (HighlightSum)**, completed as part of the **LLM Engineering and Deployment Certification program** by [Ready Tensor](https://www.readytensor.ai) 
 
 The objective is to **select**, **fine-tune**, **evaluate**, and **publish** an efficient open-source model for **dialogue summarization**, using a subset of the 
 [HighlightSum dataset](https://huggingface.co/datasets/knkarthick/highlightsum). The project includes:  
